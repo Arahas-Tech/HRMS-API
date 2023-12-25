@@ -21,7 +21,10 @@ const verifyToken = (req, _res, next) => {
 const verifyAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
     if (
-      req.RoleID === "ATPL-Admin" ||
+      req.body.createdBy === "ATPL-ADMIN" ||
+      req.body.createdBy === "ATPL-HR" ||
+      req.body.createdBy === "ATR-Employee" ||
+      req.RoleID === "ATPL-ADMIN" ||
       req.RoleID === "ATPL-HR" ||
       req.RoleID === "ATR-Employee"
     ) {

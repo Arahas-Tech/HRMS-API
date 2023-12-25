@@ -25,3 +25,17 @@ module.exports.addTrainings = async (req, res, next) => {
     next(createError(error));
   }
 };
+
+module.exports.deleteTraining = async (req, res, next) => {
+  try {
+    let trainingID = req.params.id;
+    const deletedTraining = await TrainingModel.findByIdAndDelete(trainingID);
+
+    res.status(200).json({
+      message: "Training SuccessFully Deleted!",
+      data: deletedTraining,
+    });
+  } catch (error) {
+    next(createError(error));
+  }
+};

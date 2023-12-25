@@ -5,25 +5,6 @@ const createError = require("../utils/errorHandler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-module.exports.register = async (req, res, next) => {
-  try {
-    let data = req.body;
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(data.employeePassword, salt);
-    data.employeePassword = hashedPassword;
-    const newEmployeeDetails = new EmployeeModel(data);
-
-    const savedEmployeeDetails = await newEmployeeDetails.save();
-
-    res.status(200).json({
-      message: "Employee SuccessFully Registered",
-      data: savedEmployeeDetails,
-    });
-  } catch (error) {
-    next(createError(error));
-  }
-};
-
 module.exports.login = async (req, res, next) => {
   try {
     let { employeeEmail, employeePassword: employeeEnteredPassword } = req.body;
@@ -105,11 +86,12 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
     const result = await EmployeeModel.aggregate(roleNamePipeline);
 
     return res.status(200).json({
-      employeeID: currentUser.employeeID,
-      employeeName: currentUser.employeeName,
-      employeeEmail: currentUser.employeeEmail,
-      employeeRoleID: currentUser.roleID,
+      employeeID: currentUser?.employeeID,
+      employeeName: currentUser?.employeeName,
+      employeeEmail: currentUser?.employeeEmail,
+      employeeRoleID: currentUser?.roleID,
       employeeRoleName: result[0]?.roleName,
+      trainingsCompleted: currentUser?.trainingsCompleted,
     });
   } catch (error) {
     return next(createError(error));
@@ -119,32 +101,4 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
 module.exports.logout = async (req, res, next) => {
   res.clearCookie("accessToken");
   return res.status(200).json({ message: "Logout Success!" });
-};
-
-module.exports.createRole = async (req, res, next) => {
-  try {
-    let data = req.body;
-    const newRole = new RolesModel(data);
-    try {
-      const savedRole = await newRole.save();
-      res.status(200).json({
-        message: "Role Added Successfully!",
-        data: savedRole,
-      });
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  } catch (error) {
-    next(createError(error));
-  }
-};
-
-module.exports.getAllRoles = async (req, res, next) => {
-  try {
-    const allRoles = await RolesModel.find();
-
-    res.status(200).json(allRoles);
-  } catch (error) {
-    createError(error);
-  }
 };

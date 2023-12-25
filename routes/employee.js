@@ -1,8 +1,17 @@
 const express = require("express");
-const { getAllEmployees } = require("../controllers/employeeController");
-const { verifyAdmin } = require("../utils/verifyToken");
+const {
+  getAllEmployees,
+  deleteEmployee,
+  addEmployee,
+  updateTraining,
+} = require("../controllers/employeeController");
+const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 const employeesRoute = express.Router();
 
-employeesRoute.get("/employeesData", verifyAdmin, getAllEmployees);
+employeesRoute.get("/getAllEmployees", verifyAdmin, getAllEmployees);
+employeesRoute.post("/addEmployee", verifyAdmin, addEmployee);
+employeesRoute.post("/deleteEmployee/:id", verifyAdmin, deleteEmployee);
+
+employeesRoute.post("/updateTraining/:id", verifyToken, updateTraining);
 
 module.exports = employeesRoute;

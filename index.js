@@ -42,11 +42,13 @@ app.use((_, res, next) => {
 const authRoute = require("./routes/auth");
 const employeesRoute = require("./routes/employee");
 const trainingRoutes = require("./routes/training");
+const roleRoutes = require("./routes/roles");
 
 // Route Middleware
 app.use("/api/auth", authRoute);
 app.use("/api/employees", employeesRoute);
 app.use("/api/trainings", trainingRoutes);
+app.use("/api/roles", roleRoutes);
 
 // Error handling middleware
 app.use((err, _req, res, _next) => {

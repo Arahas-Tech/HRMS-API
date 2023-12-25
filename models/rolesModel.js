@@ -16,6 +16,11 @@ const RolesSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
+    roleDescription: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     isActive: {
       type: Boolean,
       default: true,

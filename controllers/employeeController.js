@@ -58,10 +58,13 @@ module.exports.addEmployee = async (req, res, next) => {
     let data = req.body;
 
     const existingEmployee = await EmployeeModel.findOne({
-      employeeEmail: data.employeeEmail,
+      $or: [
+        { employeeEmail: data.employeeEmail },
+        { employeeID: data.employeeID },
+      ],
     });
     if (existingEmployee) {
-      return next(createError(400, "Email already exists!"));
+      return next(createError(400, "Email or Employee ID already exists!"));
     }
 
     if (!data) {

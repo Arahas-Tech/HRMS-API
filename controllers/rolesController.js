@@ -5,15 +5,24 @@ module.exports.addRole = async (req, res, next) => {
   try {
     let data = req.body;
     const newRole = new RolesModel(data);
-    try {
-      const savedRoleDetails = await newRole.save();
-      res.status(200).json({
-        message: "Role Added Successfully!",
-        data: savedRoleDetails,
-      });
-    } catch (error) {
-      res.status(500).json(error);
+
+    const existingRole = await RolesModel.findOne({
+      $or: [
+        { roleID: data.roleID },
+        { roleName: data.roleName },
+        { roleDescription: data.roleDescription },
+      ],
+    });
+
+    if (existingRole) {
+      return next(createError(400, "Role already exists!"));
     }
+
+    const savedRoleDetails = await newRole.save();
+    res.status(200).json({
+      message: "Role Added Successfully!",
+      data: savedRoleDetails,
+    });
   } catch (error) {
     next(createError(error));
   }

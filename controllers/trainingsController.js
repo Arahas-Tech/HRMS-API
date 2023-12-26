@@ -38,6 +38,16 @@ module.exports.addTrainings = async (req, res, next) => {
   try {
     let data = req.body;
     const trainingDetails = new TrainingModel(data);
+    const existingTraining = await TrainingModel.findOne({
+      $or: [
+        { trainingID: data.trainingID },
+        { trainingName: data.trainingName },
+      ],
+    });
+
+    if (existingTraining) {
+      return next(createError(400, "Training already exists!"));
+    }
 
     const savedTrainingDetails = await trainingDetails.save();
 

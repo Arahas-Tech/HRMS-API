@@ -28,6 +28,25 @@ module.exports.getAllRoles = async (_req, res, next) => {
   }
 };
 
+module.exports.editRole = async (req, res, next) => {
+  try {
+    let { roleID, editedRoleDescription } = req.body;
+
+    const editedRoleDetails = await RolesModel.findOneAndUpdate(
+      { roleID: roleID },
+      {
+        $set: {
+          roleDescription: editedRoleDescription,
+        },
+      }
+    );
+
+    return res.status(200).json(editedRoleDetails);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error}`));
+  }
+};
+
 module.exports.deleteRole = async (req, res, next) => {
   try {
     let roleID = req.params.id;

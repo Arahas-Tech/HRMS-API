@@ -45,7 +45,7 @@ module.exports.login = async (req, res, next) => {
         accessToken: token,
       });
   } catch (error) {
-    return next(createError(error));
+    return next(createError(500, "Something went wrong at server's end!"));
   }
 };
 
@@ -60,7 +60,7 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
     const currentUser = await EmployeeModel.findOne({ accessToken });
 
     if (!currentUser) {
-      next(createError(404, "Incorrect Token or User not Found!"));
+      return next(createError(404, "Incorrect Token or User not Found!"));
     }
 
     const roleNamePipeline = [
@@ -94,11 +94,11 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
       trainingsCompleted: currentUser?.trainingsCompleted,
     });
   } catch (error) {
-    return next(createError(error));
+    return next(createError(500, "Something went wrong at server's end!"));
   }
 };
 
-module.exports.logout = async (req, res, next) => {
+module.exports.logout = async (_req, res, _next) => {
   res.clearCookie("accessToken");
   return res.status(200).json({ message: "Logout Success!" });
 };

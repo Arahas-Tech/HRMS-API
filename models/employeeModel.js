@@ -30,11 +30,11 @@ const EmployeeSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
+    employeeDesignation: { type: String },
     roleID: {
       type: String,
       minlength: 5,
       maxlength: 1024,
-      unique: true,
       required: true,
     },
     trainingsCompleted: [
@@ -42,6 +42,7 @@ const EmployeeSchema = new mongoose.Schema(
         training: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Training",
+          unique: true,
           required: true,
         },
         completedOn: {
@@ -50,6 +51,11 @@ const EmployeeSchema = new mongoose.Schema(
         },
       },
     ],
+    dateOfJoining: {
+      type: Date,
+      required: true,
+      default: new Date(),
+    },
     accessToken: {
       type: String,
     },

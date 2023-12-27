@@ -100,9 +100,8 @@ const markAllNotificationsAsRead = async (req, res) => {
 
 const sendNotification = async (req, res) => {
   const { id } = req.body;
-  console.log(id);
 
-  const resp = await AdminNotificationModel.create({
+  await AdminNotificationModel.create({
     user: id,
     title: "Reminder",
     type: 1,

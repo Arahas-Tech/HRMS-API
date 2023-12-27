@@ -38,14 +38,6 @@ app.use((_, res, next) => {
   next();
 });
 
-// Socketio must be declared before api routes
-const server = require("http").createServer(app);
-const io = require("socket.io")(server, {
-  transports: ["polling"],
-  cors: { origin: "allowedOrigins" },
-});
-require("./utils/socketio")(io);
-
 // Routes
 const authRoutes = require("./routes/auth");
 const employeesRoutes = require("./routes/employee");

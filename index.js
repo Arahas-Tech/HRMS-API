@@ -38,17 +38,27 @@ app.use((_, res, next) => {
   next();
 });
 
+// Socketio must be declared before api routes
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  transports: ["polling"],
+  cors: { origin: "allowedOrigins" },
+});
+require("./utils/socketio")(io);
+
 // Routes
-const authRoute = require("./routes/auth");
-const employeesRoute = require("./routes/employee");
+const authRoutes = require("./routes/auth");
+const employeesRoutes = require("./routes/employee");
 const trainingRoutes = require("./routes/training");
 const roleRoutes = require("./routes/roles");
+const notificationRoutes = require("./routes/adminNotification");
 
 // Route Middleware
-app.use("/api/auth", authRoute);
-app.use("/api/employees", employeesRoute);
+app.use("/api/auth", authRoutes);
+app.use("/api/employees", employeesRoutes);
 app.use("/api/trainings", trainingRoutes);
 app.use("/api/roles", roleRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Error handling middleware
 app.use((err, _req, res, _next) => {

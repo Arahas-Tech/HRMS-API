@@ -7,14 +7,14 @@ const {
   editEmployee,
 } = require("../controllers/employeeController");
 const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
-const employeesRoute = express.Router();
+const employeesRouter = express.Router();
 
-employeesRoute.get("/getAllEmployees", verifyAdmin, getAllEmployees);
-employeesRoute.post("/addEmployee", verifyAdmin, addEmployee);
+employeesRouter.get("/getAllEmployees", verifyAdmin, getAllEmployees);
+employeesRouter.post("/addEmployee", verifyAdmin, addEmployee);
 
-employeesRoute.post("/editEmployee", verifyAdmin, editEmployee);
-employeesRoute.post("/deleteEmployee/:id", verifyAdmin, deleteEmployee);
+employeesRouter.post("/editEmployee", verifyAdmin, editEmployee);
+employeesRouter.post("/deleteEmployee/:id", verifyAdmin, deleteEmployee);
 
-employeesRoute.post("/updateTraining/:id", verifyToken, updateTraining);
+employeesRouter.post("/updateTraining/:id", verifyToken, updateTraining);
 
-module.exports = employeesRoute;
+module.exports = employeesRouter;

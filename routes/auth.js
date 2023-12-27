@@ -4,13 +4,13 @@ const {
   logout,
   getUserDetailsFromToken,
 } = require("../controllers/authController");
-const authRoute = express.Router();
+const authRouter = express.Router();
 
 //Employee Auth
-authRoute.post("/login", login);
-authRoute.get("/logout", logout);
+authRouter.post("/login", login);
+authRouter.get("/logout", logout);
 
 //User Details
-authRoute.post("/getUserDetails", getUserDetailsFromToken);
+authRouter.post("/getUserDetails", getUserDetailsFromToken);
 
-module.exports = authRoute;
+module.exports = authRouter;

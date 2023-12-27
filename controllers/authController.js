@@ -1,5 +1,5 @@
+const AdminNotificationModel = require("../models/adminNotificationsModel");
 const EmployeeModel = require("../models/employeeModel");
-const RolesModel = require("../models/rolesModel");
 const createError = require("../utils/errorHandler");
 
 const bcrypt = require("bcrypt");
@@ -8,6 +8,10 @@ const jwt = require("jsonwebtoken");
 module.exports.login = async (req, res, next) => {
   try {
     let { employeeEmail, employeePassword: employeeEnteredPassword } = req.body;
+
+    if (!employeeEmail || !employeeEnteredPassword)
+      return next(createError(400, "All fields are required!"));
+
     const currentEmployee = await EmployeeModel.findOne({
       employeeEmail,
     });

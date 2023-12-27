@@ -5,13 +5,13 @@ const {
   deleteRole,
   editRole,
 } = require("../controllers/rolesController");
-const roleRoutes = express.Router();
+const rolesRouter = express.Router();
 
 const { verifyAdmin } = require("../utils/verifyToken");
 
-roleRoutes.get("/getAllRoles", verifyAdmin, getAllRoles);
-roleRoutes.post("/addRoles", verifyAdmin, addRole);
-roleRoutes.post("/editRole", verifyAdmin, editRole);
-roleRoutes.post("/deleteRoles/:id", verifyAdmin, deleteRole);
+rolesRouter.get("/getAllRoles", verifyAdmin, getAllRoles);
+rolesRouter.post("/addRoles", verifyAdmin, addRole);
+rolesRouter.post("/editRole", verifyAdmin, editRole);
+rolesRouter.post("/deleteRoles/:id", verifyAdmin, deleteRole);
 
-module.exports = roleRoutes;
+module.exports = rolesRouter;

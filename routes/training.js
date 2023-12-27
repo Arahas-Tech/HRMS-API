@@ -7,19 +7,19 @@ const {
   getAllTrainingsCount,
   editTraining,
 } = require("../controllers/trainingsController");
-const trainingRoutes = express.Router();
+const trainingsRouter = express.Router();
 
 const { verifyToken, verifyAdmin } = require("../utils/verifyToken");
 
-trainingRoutes.get("/getAllTrainings", verifyToken, getAllTrainings);
-trainingRoutes.get(
+trainingsRouter.get("/getAllTrainings", verifyToken, getAllTrainings);
+trainingsRouter.get(
   "/getTrainingsDetails/:id",
   verifyToken,
   getTrainingsDetailByID
 );
-trainingRoutes.get("/getAllTrainingsCount", verifyToken, getAllTrainingsCount);
-trainingRoutes.post("/addTrainings", verifyAdmin, addTrainings);
-trainingRoutes.post("/editTraining", verifyAdmin, editTraining);
-trainingRoutes.post("/deleteTrainings/:id", verifyAdmin, deleteTraining);
+trainingsRouter.get("/getAllTrainingsCount", verifyToken, getAllTrainingsCount);
+trainingsRouter.post("/addTrainings", verifyAdmin, addTrainings);
+trainingsRouter.post("/editTraining", verifyAdmin, editTraining);
+trainingsRouter.post("/deleteTrainings/:id", verifyAdmin, deleteTraining);
 
-module.exports = trainingRoutes;
+module.exports = trainingsRouter;

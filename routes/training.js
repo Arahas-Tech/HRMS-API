@@ -19,7 +19,7 @@ trainingsRouter.get(
 );
 trainingsRouter.get("/getAllTrainingsCount", verifyToken, getAllTrainingsCount);
 trainingsRouter.post("/addTrainings", verifyAdmin, addTrainings);
-trainingsRouter.post("/editTraining", verifyAdmin, editTraining);
+trainingsRouter.patch("/editTraining", verifyAdmin, editTraining);
 trainingsRouter.post("/deleteTrainings/:id", verifyAdmin, deleteTraining);
 
 module.exports = trainingsRouter;

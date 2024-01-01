@@ -44,6 +44,8 @@ const employeesRoutes = require("./routes/employee");
 const trainingRoutes = require("./routes/training");
 const roleRoutes = require("./routes/roles");
 const notificationRoutes = require("./routes/adminNotification");
+const projectRoutes = require("./routes/projects");
+const projectTaskRoutes = require("./routes/projectTask");
 
 // Route Middleware
 app.use("/api/auth", authRoutes);
@@ -51,6 +53,8 @@ app.use("/api/employees", employeesRoutes);
 app.use("/api/trainings", trainingRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/projectTasks", projectTaskRoutes);
 
 // Error handling middleware
 app.use((err, _req, res, _next) => {

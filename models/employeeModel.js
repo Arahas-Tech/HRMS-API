@@ -41,9 +41,8 @@ const EmployeeSchema = new mongoose.Schema(
       {
         training: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Training",
-          unique: true,
-          required: true,
+          ref: "trainings",
+          unique: false,
         },
         completedOn: {
           type: Date,

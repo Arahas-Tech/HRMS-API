@@ -2,6 +2,7 @@ const EmployeeModel = require("../models/employeeModel");
 const DateConverter = require("../utils/DateConverter");
 const createError = require("../utils/errorHandler");
 
+const xlsx = require("xlsx");
 const bcrypt = require("bcrypt");
 
 module.exports.getAllEmployees = async (_req, res, next) => {
@@ -95,6 +96,65 @@ module.exports.addEmployee = async (req, res, next) => {
     });
   } catch (error) {
     return next(createError(error));
+  }
+};
+
+module.exports.bulkAddEmployees = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send("No file uploaded.");
+    }
+
+    // Parse the uploaded Excel file using xlsx
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Convert Excel data to JSON format
+    const data = xlsx.utils.sheet_to_json(worksheet);
+
+    for (const item of data) {
+      const existingEmployee = await EmployeeModel.findOne({
+        $or: [
+          { employeeEmail: item.employeeEmail },
+          { employeeID: item.employeeID },
+        ],
+      });
+
+      if (existingEmployee) {
+        return next(createError(400, "Email or Employee ID already exists!"));
+      }
+
+      if (!item) {
+        return next(createError(400, "Invalid data!"));
+      }
+
+      const salt = await bcrypt.genSalt();
+      if (!salt) {
+        return next(createError(500, "Error generating salt!"));
+      }
+
+      const hashedPassword = await bcrypt.hash(
+        item.employeePassword.toString(),
+        salt
+      );
+      if (!hashedPassword) {
+        return next(createError(500, "Error hashing password!"));
+      }
+
+      item.employeePassword = hashedPassword;
+      const newEmployeeDetails = new EmployeeModel(item);
+
+      const savedEmployeeDetails = await newEmployeeDetails.save();
+      if (!savedEmployeeDetails) {
+        return next(createError(500, "Error saving details!"));
+      }
+    }
+
+    return res.status(200).send("File uploaded successfully.");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error uploading file.");
   }
 };
 

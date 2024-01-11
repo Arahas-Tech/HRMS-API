@@ -79,7 +79,7 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
   }
 };
 
-module.exports.getAllProjectTaskOfEmployee = async (req, res, next) => {
+module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
   try {
     const { employeeID, startDate, endDate } = req.body;
 
@@ -105,6 +105,92 @@ module.exports.getAllProjectTaskOfEmployee = async (req, res, next) => {
     const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
       return {
         projectID: projectTask.projectID,
+        projectTaskSummary: projectTask.projectTaskSummary,
+        projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
+        projectTaskEffortDate: projectTask.projectTaskEffortDate,
+      };
+    });
+
+    return res.status(200).json(projectTaskDetailsModified);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error}`));
+  }
+};
+
+module.exports.getAllProjectTaskByProjectAndEmployee = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { projectCode, employeeID, startDate, endDate } = req.body;
+
+    const projectTaskDetails = await ProjectTaskModel.find({
+      $and: [
+        {
+          projectTaskEffortDate: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+        {
+          projectID: projectCode,
+        },
+        {
+          employeeID: employeeID,
+        },
+      ],
+    });
+
+    if (!projectTaskDetails || projectTaskDetails.length === 0) {
+      return res.status(404).json({
+        message: `Project Tasks not found for employeeID ${employeeID}`,
+      });
+    }
+
+    const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
+      return {
+        projectID: projectTask.projectID,
+        projectTaskSummary: projectTask.projectTaskSummary,
+        projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
+        projectTaskEffortDate: projectTask.projectTaskEffortDate,
+      };
+    });
+
+    return res.status(200).json(projectTaskDetailsModified);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error}`));
+  }
+};
+
+module.exports.getAllProjectTaskByProject = async (req, res, next) => {
+  try {
+    const { projectCode, startDate, endDate } = req.body;
+
+    const projectTaskDetails = await ProjectTaskModel.find({
+      $and: [
+        {
+          projectTaskEffortDate: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+        {
+          projectID: projectCode,
+        },
+      ],
+    });
+
+    if (!projectTaskDetails || projectTaskDetails.length === 0) {
+      return res.status(404).json({
+        message: `Project Tasks not found ${projectCode}`,
+      });
+    }
+
+    const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
+      return {
+        employeeID: projectTask.employeeID,
+        projectCode: projectTask.projectID,
         projectTaskSummary: projectTask.projectTaskSummary,
         projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
         projectTaskEffortDate: projectTask.projectTaskEffortDate,

@@ -54,6 +54,19 @@ module.exports.getAllEmployees = async (_req, res, next) => {
   }
 };
 
+module.exports.getEmployeeByID = async (req, res, next) => {
+  try {
+    const { employeeID } = req.body;
+    const filteredEmployee = await EmployeeModel.findOne({
+      employeeID: employeeID,
+    });
+
+    return res.status(200).json(filteredEmployee);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
 module.exports.addEmployee = async (req, res, next) => {
   try {
     let data = req.body;

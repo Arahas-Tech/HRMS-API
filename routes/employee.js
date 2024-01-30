@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getAllEmployees,
+  getAllEmployeesForManager,
   getEmployeeByID,
   deleteEmployee,
   addEmployee,
@@ -15,8 +16,13 @@ const employeesRouter = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 employeesRouter.get("/getAllEmployees", verifyAdmin, getAllEmployees);
+employeesRouter.get(
+  "/getAllEmployeesForManager",
+  verifyToken,
+  getAllEmployeesForManager
+);
 employeesRouter.get("/getEmployeeByID", verifyToken, getEmployeeByID);
-employeesRouter.post("/addEmployee", verifyAdmin, addEmployee);
+employeesRouter.post("/addEmployee", addEmployee);
 employeesRouter.post(
   "/bulkAdd",
   upload.single("file"),

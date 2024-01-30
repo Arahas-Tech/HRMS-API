@@ -1,3 +1,5 @@
+const EmployeeModel = require("../models/employeeModel");
+const ProjectModel = require("../models/projectModel");
 const ProjectTaskModel = require("../models/projectTaskModel");
 const createError = require("../utils/errorHandler");
 
@@ -21,7 +23,6 @@ module.exports.addProjectTask = async (req, res, next) => {
             `Tasks for ${task.projectTaskEffortDate} already exists!`
           )
         );
-        break;
       }
 
       const newTask = await ProjectTaskModel.create(task);
@@ -39,7 +40,7 @@ module.exports.addProjectTask = async (req, res, next) => {
 
 module.exports.getProjectTaskByDate = async (req, res, next) => {
   try {
-    const { projectTaskEffortDate, employeeID } = req.body;
+    const { projectTaskEffortDate } = req.body;
 
     const startOfDay = new Date(projectTaskEffortDate);
     startOfDay.setUTCHours(0, 0, 0, 0);
@@ -63,7 +64,7 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
     }
 
     const projectTaskEffortDetailsModified = projectTaskEffortDetails.map(
-      (projectTask, index) => {
+      (projectTask) => {
         return {
           projectID: projectTask.projectID,
           projectTaskSummary: projectTask.projectTaskSummary,
@@ -102,16 +103,46 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
       });
     }
 
-    const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
-      return {
-        projectID: projectTask.projectID,
-        projectTaskSummary: projectTask.projectTaskSummary,
-        projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
-        projectTaskEffortDate: projectTask.projectTaskEffortDate,
-      };
+    const projectTaskDetailsModified = await Promise.all(
+      projectTaskDetails.map(async (projectTask) => {
+        const projectNamePipeline = [
+          {
+            $match: {
+              projectCode: projectTask.projectID,
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              projectName: 1,
+            },
+          },
+        ];
+
+        try {
+          const result = await ProjectModel.aggregate(projectNamePipeline);
+
+          return {
+            projectTaskEffortDate: projectTask.projectTaskEffortDate,
+            projectName: result[0]?.projectName,
+            projectTaskSummary: projectTask.projectTaskSummary,
+            projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
+          };
+        } catch (error) {
+          console.error("Error while aggregating data:", error);
+          throw error; // You may want to handle errors appropriately
+        }
+      })
+    );
+
+    const sortedTaskData = projectTaskDetailsModified?.sort(function (a, b) {
+      return (
+        Date.parse(a.projectTaskEffortDate) -
+        Date.parse(b.projectTaskEffortDate)
+      );
     });
 
-    return res.status(200).json(projectTaskDetailsModified);
+    return res.status(200).json(sortedTaskData);
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
   }
@@ -187,15 +218,31 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
       });
     }
 
-    const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
-      return {
-        employeeID: projectTask.employeeID,
-        projectCode: projectTask.projectID,
-        projectTaskSummary: projectTask.projectTaskSummary,
-        projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
-        projectTaskEffortDate: projectTask.projectTaskEffortDate,
-      };
-    });
+    const projectTaskDetailsModified = await Promise.all(
+      projectTaskDetails.map(async (projectTask) => {
+        const { employeeID } = projectTask;
+
+        try {
+          const employeeDetails = await EmployeeModel.findById(employeeID);
+          const employeeName = employeeDetails.employeeName;
+
+          return {
+            employeeID: projectTask.employeeID,
+            employeeName: employeeName,
+            projectCode: projectTask.projectID,
+            projectTaskSummary: projectTask.projectTaskSummary,
+            projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
+            projectTaskEffortDate: projectTask.projectTaskEffortDate,
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching employee details for ID ${employeeID}:`,
+            error
+          );
+          return projectTask; // If an error occurs, return the original projectTask
+        }
+      })
+    );
 
     return res.status(200).json(projectTaskDetailsModified);
   } catch (error) {

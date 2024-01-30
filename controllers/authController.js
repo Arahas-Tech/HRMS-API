@@ -1,4 +1,3 @@
-const AdminNotificationModel = require("../models/adminNotificationsModel");
 const EmployeeModel = require("../models/employeeModel");
 const createError = require("../utils/errorHandler");
 
@@ -28,7 +27,6 @@ module.exports.login = async (req, res, next) => {
 
     const token = jwt.sign(
       {
-        id: currentEmployee._id,
         employeeID: currentEmployee.employeeID,
         roleID: currentEmployee.roleID,
       },
@@ -39,15 +37,9 @@ module.exports.login = async (req, res, next) => {
     currentEmployee.accessToken = token;
     await currentEmployee.save(); // Save the updated employee with accessToken
 
-    res
-      .cookie("accessToken", token, {
-        expires: new Date(Date.now() + 900000),
-        httpOnly: true,
-      })
-      .status(200)
-      .json({
-        accessToken: token,
-      });
+    res.status(200).json({
+      accessToken: token,
+    });
   } catch (error) {
     return next(createError(500, "Something went wrong at server's end!"));
   }
@@ -90,11 +82,13 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
     const result = await EmployeeModel.aggregate(roleNamePipeline);
 
     return res.status(200).json({
+      employeeObjectID: currentUser?._id,
       employeeID: currentUser?.employeeID,
       employeeName: currentUser?.employeeName,
       employeeEmail: currentUser?.employeeEmail,
       employeeRoleID: currentUser?.roleID,
       employeeRoleName: result[0]?.roleName,
+      employeeDOJ: currentUser?.dateOfJoining,
       trainingsCompleted: currentUser?.trainingsCompleted,
     });
   } catch (error) {

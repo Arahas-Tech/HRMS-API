@@ -20,23 +20,27 @@ const projectSchema = new mongoose.Schema(
       ref: "employees",
       required: true,
     },
+    projectStartDate: {
+      type: Date,
+      required: true,
+    },
     projectDeadline: {
       type: Date,
       required: true,
     },
-    projectAllotedDuration: {
-      type: String,
-      required: true,
-    },
     projectAssignedDetails: [
       {
+        employeeObjectID: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "employees",
+          unique: true,
+        },
         employeeID: {
           type: String,
-          ref: "employees",
+          unique: true,
         },
-        employeeWorkingLocation: {
+        employeeName: {
           type: String,
-          required: true,
         },
       },
     ],

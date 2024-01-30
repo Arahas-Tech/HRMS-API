@@ -30,7 +30,9 @@ const EmployeeSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
-    employeeDesignation: { type: String },
+    employeeDesignation: { type: String, required: true },
+    employeeWorkingState: { type: String, required: true },
+    employeeWorkingLocation: { type: String, required: true },
     roleID: {
       type: String,
       minlength: 5,

@@ -54,6 +54,28 @@ module.exports.getAllEmployees = async (_req, res, next) => {
   }
 };
 
+module.exports.getAllEmployeesForManager = async (_req, res, next) => {
+  try {
+    const allEmployees = await EmployeeModel.find({
+      roleID: "ATPL-Employee",
+    });
+
+    const employeeData = allEmployees.map((employee) => {
+      return {
+        employeeObjectID: employee._id,
+        employeeID: employee.employeeID,
+        employeeName: employee.employeeName,
+        employeeWorkingState: employee.employeeWorkingState,
+        employeeWorkingLocation: employee.employeeWorkingLocation,
+      };
+    });
+
+    return res.status(200).json(employeeData);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
 module.exports.getEmployeeByID = async (req, res, next) => {
   try {
     const { employeeID } = req.body;

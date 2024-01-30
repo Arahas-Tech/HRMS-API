@@ -3,13 +3,12 @@ const mongoose = require("mongoose");
 const projectTaskSchema = new mongoose.Schema(
   {
     employeeID: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "employees",
       required: true,
     },
     projectID: {
       type: String,
-      ref: "projects",
       required: true,
     },
     projectTaskSummary: {
@@ -18,9 +17,11 @@ const projectTaskSchema = new mongoose.Schema(
     },
     projectTaskEffortsTime: {
       type: String,
+      required: true,
     },
     projectTaskEffortDate: {
       type: Date,
+      required: true,
     },
   },
   { timestamps: true }

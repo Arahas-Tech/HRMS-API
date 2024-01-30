@@ -5,13 +5,14 @@ const createError = require("../utils/errorHandler");
 module.exports.addProject = async (req, res, next) => {
   try {
     let data = req.body;
+
     const newProject = new ProjectModel(data);
 
     const existingProject = await ProjectModel.findOne({
       $or: [
-        { projectCode: data.projectCode },
-        { projectName: data.projectName },
-        { projectDescription: data.projectDescription },
+        { projectCode: data?.projectCode },
+        { projectName: data?.projectName },
+        { projectDescription: data?.projectDescription },
       ],
     });
 
@@ -32,46 +33,58 @@ module.exports.addProject = async (req, res, next) => {
 module.exports.addEmployeeToProject = async (req, res, next) => {
   try {
     const projectCode = req.params.projectCode;
-    const employeeData = req.body;
+    const { data } = req.body;
+    const totalRecords = data.length;
 
-    const existingProject = await ProjectModel.findOne({
-      projectCode: projectCode,
-      projectAssignedDetails: {
-        $elemMatch: {
-          employeeID: employeeData.employeeID,
+    for (const employee of data) {
+      const existingInProject = await ProjectModel.findOne({
+        projectCode: projectCode,
+        projectAssignedDetails: {
+          $elemMatch: {
+            employeeObjectID: employee.employeeObjectID,
+          },
         },
-      },
-    });
+      });
+      if (existingInProject) {
+        return next(
+          createError(
+            400,
+            `${
+              totalRecords >= 2 ? "Employees" : "Employee"
+            }  already assigned to this project`
+          )
+        );
+      } else {
+        const updatedProject = await ProjectModel.findOneAndUpdate(
+          { projectCode: projectCode }, // Search for the project by its unique projectCode
+          { $push: { projectAssignedDetails: employee } } // Push the new employees data to the 'projectAssignedDetails'
+        );
 
-    if (existingProject) {
-      return res
-        .status(400)
-        .json({ message: "Employee already exists in the project" });
-    }
-
-    const updatedProject = await ProjectModel.findOneAndUpdate(
-      { projectCode: projectCode }, // Search for the project by its unique projectCode
-      { $push: { "projectAssignedDetails.employees": employeeData } }, // Push the new employee data to the 'employees' array under 'projectAssignedDetails'
-      { new: true } // To return the updated document
-    );
-
-    if (!updatedProject) {
-      return next(createError(404, "Project not found"));
+        if (!updatedProject) {
+          return next(createError(404, "Project not found"));
+        }
+      }
     }
 
     res.status(200).json({
-      message: "Employee added to project successfully",
-      data: updatedProject,
+      message: `${
+        totalRecords >= 2 ? "Employees" : "Employee"
+      }  added to project successfully`,
     });
   } catch (error) {
     return next(createError(500, "Failed to add employee to project", error));
   }
 };
 
-module.exports.getAllProjects = async (_req, res, next) => {
+module.exports.getAllProjectsByEmployee = async (req, res, next) => {
   try {
-    const getAllProjects = await ProjectModel.find();
-    return res.status(200).json(getAllProjects);
+    const { employeeID } = req.body;
+
+    const getAllProjectsByEmployee = await ProjectModel.find({
+      "projectAssignedDetails.employeeID": employeeID,
+    });
+
+    return res.status(200).json(getAllProjectsByEmployee);
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
   }
@@ -83,15 +96,21 @@ module.exports.getProjectDetailByProjectCode = async (req, res, next) => {
     const projectDetails = await ProjectModel.findOne({
       projectCode: projectCode,
     });
+
     if (!projectDetails) {
       return next(createError(404, "Project Not Found!"));
     }
+
+    // Find project manager details
+    const projectManager = await EmployeeModel.findOne({
+      employeeId: projectDetails.projectManager,
+    });
+
     return res.status(200).json({
-      projectObjectID: projectDetails._id,
       projectName: projectDetails.projectName,
       projectDeadline: projectDetails.projectDeadline,
       projectAllotedDuration: projectDetails.projectAllotedDuration,
-      projectManager: projectDetails.projectManager,
+      projectManager: projectManager.employeeName,
     });
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
@@ -113,10 +132,23 @@ module.exports.getProjectDetailsByManager = async (req, res, next) => {
       return {
         projectCode: projectDetail.projectCode,
         projectName: projectDetail.projectName,
+        projectAssignedDetails: projectDetail.projectAssignedDetails,
       };
     });
 
     return res.status(200).json(projectModifiedDetails);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error}`));
+  }
+};
+
+module.exports.getAllProjectsDetailsByManager = async (req, res, next) => {
+  try {
+    const managerID = req.params.managerID;
+    const getAllProjects = await ProjectModel.find({
+      projectManager: managerID,
+    });
+    return res.status(200).json(getAllProjects);
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
   }
@@ -165,6 +197,7 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
 
     const projectAssignedDetailsWithNames =
       projectDetails.projectAssignedDetails.map((projectAssignedDetail) => ({
+        employeeObjectID: projectAssignedDetail.employeeObjectID,
         employeeID: projectAssignedDetail.employeeID,
         employeeName: employeeNamesMap[projectAssignedDetail.employeeID],
       }));

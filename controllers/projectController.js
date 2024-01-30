@@ -214,13 +214,20 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
 
 module.exports.editProject = async (req, res, next) => {
   try {
-    let { projectCode, editedProjectDescription } = req.body;
+    const projectCode = req.params.projectCode;
+    const { updatedProjectName, updatedProjectDescription, updatedDeadline } =
+      req.body;
 
     const editedProjectDetails = await ProjectModel.findOneAndUpdate(
       { projectCode: projectCode },
       {
         $set: {
-          projectDescription: editedProjectDescription,
+          projectName: updatedProjectName,
+          projectDescription: updatedProjectDescription,
+          projectDeadline: updatedDeadline,
+          projectCompleted:
+            new Date(updatedDeadline).getTime() ===
+            new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
         },
       }
     );

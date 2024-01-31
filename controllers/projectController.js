@@ -84,7 +84,20 @@ module.exports.getAllProjectsByEmployee = async (req, res, next) => {
       "projectAssignedDetails.employeeID": employeeID,
     });
 
-    return res.status(200).json(getAllProjectsByEmployee);
+    if (!getAllProjectsByEmployee) {
+      return next(createError(404, "No projects found"));
+    }
+
+    const projectModifiedDetails = getAllProjectsByEmployee.map((data) => {
+      return {
+        projectCode: data.projectCode,
+        projectName: data.projectName,
+        projectCompleted: data.projectCompleted,
+        projectDeadline: data.projectDeadline,
+      };
+    });
+
+    return res.status(200).json(projectModifiedDetails);
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
   }

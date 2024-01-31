@@ -31,22 +31,26 @@ module.exports.getAllEmployees = async (_req, res, next) => {
 
     const result = await EmployeeModel.aggregate(roleNamePipeline);
 
-    const employeeData = allEmployees.map((employee, index) => {
-      const dateOfJoiningInReadableFormat = DateConverter(
-        employee.dateOfJoining
-      );
+    const employeeData = allEmployees
+      .map((employee, index) => {
+        const dateOfJoiningInReadableFormat = DateConverter(
+          employee.dateOfJoining
+        );
 
-      return {
-        employeeID: employee.employeeID,
-        employeeName: employee.employeeName,
-        employeeEmail: employee.employeeEmail,
-        employeeRoleID: employee.roleID,
-        employeeRoleName: result[index]?.roleName,
-        employeeDesignation: employee.employeeDesignation,
-        trainingsCompleted: employee.trainingsCompleted,
-        dateOfJoining: dateOfJoiningInReadableFormat,
-      };
-    });
+        return employee.roleID !== "ATPL-ADMIN"
+          ? {
+              employeeID: employee.employeeID,
+              employeeName: employee.employeeName,
+              employeeEmail: employee.employeeEmail,
+              employeeRoleID: employee.roleID,
+              employeeRoleName: result[index]?.roleName,
+              employeeDesignation: employee.employeeDesignation,
+              trainingsCompleted: employee.trainingsCompleted,
+              dateOfJoining: dateOfJoiningInReadableFormat,
+            }
+          : null;
+      })
+      .filter((data) => data !== null);
 
     return res.status(200).json(employeeData);
   } catch (error) {

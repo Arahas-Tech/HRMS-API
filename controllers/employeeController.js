@@ -3,7 +3,7 @@ const DateConverter = require("../utils/DateConverter");
 const createError = require("../utils/errorHandler");
 
 const xlsx = require("xlsx");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 module.exports.getAllEmployees = async (_req, res, next) => {
   try {

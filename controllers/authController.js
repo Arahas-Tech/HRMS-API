@@ -1,7 +1,7 @@
 const EmployeeModel = require("../models/employeeModel");
 const createError = require("../utils/errorHandler");
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 module.exports.login = async (req, res, next) => {

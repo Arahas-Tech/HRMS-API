@@ -1,3 +1,4 @@
+const DepartmentModel = require("../models/departmentModel");
 const EmployeeModel = require("../models/employeeModel");
 const createError = require("../utils/errorHandler");
 
@@ -81,6 +82,10 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
 
     const result = await EmployeeModel.aggregate(roleNamePipeline);
 
+    const { departmentName } = await DepartmentModel.findById(
+      currentUser?.departmentID
+    );
+
     return res.status(200).json({
       employeeObjectID: currentUser?._id,
       employeeID: currentUser?.employeeID,
@@ -89,6 +94,8 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
       employeeDesignation: currentUser?.employeeDesignation,
       employeeWorkingState: currentUser?.employeeWorkingState,
       employeeWorkingLocation: currentUser?.employeeWorkingLocation,
+      employeeDepartmentID: currentUser?.departmentID,
+      employeeDepartmentName: departmentName,
       employeeRoleID: currentUser?.roleID,
       employeeRoleName: result[0]?.roleName,
       employeeDOJ: currentUser?.dateOfJoining,

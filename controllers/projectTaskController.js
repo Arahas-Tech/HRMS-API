@@ -239,7 +239,7 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
             `Error fetching employee details for ID ${employeeID}:`,
             error
           );
-          return projectTask; // If an error occurs, return the original projectTask
+          return projectTask;
         }
       })
     );

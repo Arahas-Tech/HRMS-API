@@ -49,7 +49,7 @@ module.exports.editDepartment = async (req, res, next) => {
       }
     );
 
-    return res.status(200).json(editedDepartmentDetails);
+    return res.status(200).json("Successfully updated details");
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
   }

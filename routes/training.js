@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getAllTrainings,
-  addTrainings,
+  addTraining,
   deleteTraining,
   getTrainingsDetailByID,
   getAllTrainingsCount,
@@ -18,7 +18,7 @@ trainingsRouter.get(
   getTrainingsDetailByID
 );
 trainingsRouter.get("/getAllTrainingsCount", verifyToken, getAllTrainingsCount);
-trainingsRouter.post("/addTrainings", verifyAdmin, addTrainings);
+trainingsRouter.post("/addTraining", verifyAdmin, addTraining);
 trainingsRouter.patch("/editTraining", verifyAdmin, editTraining);
 trainingsRouter.post("/deleteTrainings/:id", verifyAdmin, deleteTraining);
 

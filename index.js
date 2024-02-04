@@ -45,20 +45,24 @@ const trainingRoutes = require("./routes/training");
 const roleRoutes = require("./routes/roles");
 const departmentsRouter = require("./routes/departments");
 const designationsRouter = require("./routes/designations");
-const notificationRoutes = require("./routes/adminNotification");
+const statesRouter = require("./routes/states");
+const citiesRouter = require("./routes/cities");
 const projectRoutes = require("./routes/projects");
 const projectTaskRoutes = require("./routes/projectTask");
+const notificationRoutes = require("./routes/adminNotification");
 
 // Route Middleware
-app.use("/api/auth", authRoutes);
-app.use("/api/employees", employeesRoutes);
-app.use("/api/trainings", trainingRoutes);
-app.use("/api/roles", roleRoutes);
-app.use("/api/departments", departmentsRouter);
-app.use("/api/designations", designationsRouter);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/projectTasks", projectTaskRoutes);
+app.use("/auth", authRoutes);
+app.use("/employees", employeesRoutes);
+app.use("/trainings", trainingRoutes);
+app.use("/roles", roleRoutes);
+app.use("/departments", departmentsRouter);
+app.use("/designations", designationsRouter);
+app.use("/states", statesRouter);
+app.use("/cities", citiesRouter);
+app.use("/projects", projectRoutes);
+app.use("/projectTasks", projectTaskRoutes);
+app.use("/notifications", notificationRoutes);
 
 // Error handling middleware
 app.use((err, _req, res, _next) => {

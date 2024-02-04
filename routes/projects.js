@@ -14,8 +14,8 @@ const projectsRouter = express.Router();
 
 const { verifyToken } = require("../utils/verifyToken");
 
-projectsRouter.post(
-  "/getAllProjectsByEmployee",
+projectsRouter.get(
+  "/getAllProjectsByEmployee?:employeeID",
   verifyToken,
   getAllProjectsByEmployee
 );

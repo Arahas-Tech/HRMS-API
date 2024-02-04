@@ -78,7 +78,7 @@ module.exports.addEmployeeToProject = async (req, res, next) => {
 
 module.exports.getAllProjectsByEmployee = async (req, res, next) => {
   try {
-    const { employeeID } = req.body;
+    const employeeID = req.query.employeeID;
 
     const getAllProjectsByEmployee = await ProjectModel.find({
       "projectAssignedDetails.employeeID": employeeID,

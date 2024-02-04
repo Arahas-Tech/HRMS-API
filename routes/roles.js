@@ -10,7 +10,7 @@ const rolesRouter = express.Router();
 const { verifyAdmin } = require("../utils/verifyToken");
 
 rolesRouter.get("/getAllRoles", verifyAdmin, getAllRoles);
-rolesRouter.post("/addRoles", verifyAdmin, addRole);
+rolesRouter.post("/addRole", verifyAdmin, addRole);
 rolesRouter.patch("/editRole", verifyAdmin, editRole);
 rolesRouter.delete("/deleteRoles/:id", verifyAdmin, deleteRole);
 

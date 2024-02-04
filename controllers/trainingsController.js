@@ -34,7 +34,7 @@ module.exports.getTrainingsDetailByID = async (req, res, next) => {
   }
 };
 
-module.exports.addTrainings = async (req, res, next) => {
+module.exports.addTraining = async (req, res, next) => {
   try {
     let data = req.body;
     const trainingDetails = new TrainingModel(data);

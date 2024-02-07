@@ -30,8 +30,6 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       },
     ];
 
-    const result = await EmployeeModel.aggregate(roleNamePipeline);
-
     const departmentNamePipeline = [
       {
         $lookup: {
@@ -56,7 +54,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       {
         $lookup: {
           from: "designations",
-          localField: "designationID",
+          localField: "employeeDesignation",
           foreignField: "_id",
           as: "designationNamesArray",
         },
@@ -67,18 +65,64 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       {
         $project: {
           _id: 0,
-          departmentName: "$designationNamesArray.designationName",
+          designationName: "$designationNamesArray.designationName",
         },
       },
     ];
 
-    const departmentName = await EmployeeModel.aggregate(
+    const stateNamePipeline = [
+      {
+        $lookup: {
+          from: "states",
+          localField: "employeeWorkingState",
+          foreignField: "_id",
+          as: "stateNamesArray",
+        },
+      },
+      {
+        $unwind: "$stateNamesArray",
+      },
+      {
+        $project: {
+          _id: 0,
+          stateName: "$stateNamesArray.stateName",
+        },
+      },
+    ];
+
+    const cityNamePipeline = [
+      {
+        $lookup: {
+          from: "cities",
+          localField: "employeeWorkingLocation",
+          foreignField: "_id",
+          as: "cityNamesArray",
+        },
+      },
+      {
+        $unwind: "$cityNamesArray",
+      },
+      {
+        $project: {
+          _id: 0,
+          cityName: "$cityNamesArray.cityName",
+        },
+      },
+    ];
+
+    const roleNames = await EmployeeModel.aggregate(roleNamePipeline);
+
+    const departmentNames = await EmployeeModel.aggregate(
       departmentNamePipeline
     );
 
-    const designationName = await EmployeeModel.aggregate(
+    const designationNames = await EmployeeModel.aggregate(
       designationNamePipeline
     );
+
+    const stateNames = await EmployeeModel.aggregate(stateNamePipeline);
+
+    const cityNames = await EmployeeModel.aggregate(cityNamePipeline);
 
     const employeeData = allEmployees
       .map((employee, index) => {
@@ -92,10 +136,11 @@ module.exports.getAllEmployees = async (_req, res, next) => {
               employeeName: employee.employeeName,
               employeeEmail: employee.employeeEmail,
               employeeRoleID: employee.roleID,
-              employeeRoleName: result[index]?.roleName,
-              employeeDesignation: employee.employeeDesignation,
-              employeeDepartment: departmentName[index]?.departmentName,
-              employeeDesignation: designationName[index]?.designationName,
+              employeeRoleName: roleNames[index]?.roleName,
+              employeeDepartment: departmentNames[index]?.departmentName,
+              employeeDesignation: designationNames[index]?.designationName,
+              employeeWorkingState: stateNames[index]?.stateName,
+              employeeWorkingCity: cityNames[index]?.cityName,
               trainingsCompleted: employee.trainingsCompleted,
               dateOfJoining: dateOfJoiningInReadableFormat,
             }
@@ -108,6 +153,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
     return next(createError(500, `Something went wrong!`));
   }
 };
+
 module.exports.getAllEmployeesForManager = async (_req, res, next) => {
   try {
     const allEmployees = await EmployeeModel.find({

@@ -37,7 +37,13 @@ module.exports.editDesignation = async (req, res, next) => {
   try {
     let { designationID, editedDesignationName } = req.body;
 
-    const editedDesignationDetails = await DesignationModel.findOneAndUpdate(
+    const existingDesignation = DesignationModel.findById(designationID);
+
+    if (existingDesignation) {
+      return next(createError(500, "Designation already exists"));
+    }
+
+    await DesignationModel.findOneAndUpdate(
       { _id: designationID },
       {
         $set: {

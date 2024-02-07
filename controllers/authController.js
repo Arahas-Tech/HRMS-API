@@ -61,48 +61,78 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
       return next(createError(404, "Incorrect Token or User not Found!"));
     }
 
-    const roleNamePipeline = [
+    const aggregationPipeline = [
+      {
+        $match: { accessToken },
+      },
       {
         $lookup: {
           from: "roles",
           localField: "roleID",
           foreignField: "roleID",
-          as: "roleName",
+          as: "role",
         },
       },
       {
-        $unwind: "$roleName", // Corrected to reference "roleName"
+        $lookup: {
+          from: "departments",
+          localField: "departmentID",
+          foreignField: "_id",
+          as: "department",
+        },
+      },
+      {
+        $lookup: {
+          from: "designations",
+          localField: "employeeDesignation",
+          foreignField: "_id",
+          as: "designation",
+        },
+      },
+      {
+        $lookup: {
+          from: "states",
+          localField: "employeeWorkingState",
+          foreignField: "_id",
+          as: "state",
+        },
+      },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "employeeWorkingLocation",
+          foreignField: "_id",
+          as: "city",
+        },
       },
       {
         $project: {
-          _id: 0, // Exclude the _id field if not needed
-          roleName: "$roleName.roleName",
+          _id: 0,
+          employeeObjectID: "$_id",
+          employeeID: 1,
+          employeeName: 1,
+          employeeEmail: 1,
+          employeeRoleID: "$roleID",
+          employeeRoleName: "$role.roleName",
+          employeeDepartment: "$department.departmentName",
+          employeeDesignation: "$designation.designationName",
+          employeeWorkingState: "$state.stateName",
+          employeeWorkingLocation: "$city.cityName",
+          employeeDOJ: "$dateOfJoining",
+          trainingsCompleted: 1,
         },
       },
     ];
 
-    const result = await EmployeeModel.aggregate(roleNamePipeline);
+    const userDetails = await EmployeeModel.aggregate(aggregationPipeline);
 
-    const { departmentName } = await DepartmentModel.findById(
-      currentUser?.departmentID
-    );
+    if (!userDetails || userDetails.length === 0) {
+      return next(createError(404, "User details not found"));
+    }
 
-    return res.status(200).json({
-      employeeObjectID: currentUser?._id,
-      employeeID: currentUser?.employeeID,
-      employeeName: currentUser?.employeeName,
-      employeeEmail: currentUser?.employeeEmail,
-      employeeDesignation: currentUser?.employeeDesignation,
-      employeeWorkingState: currentUser?.employeeWorkingState,
-      employeeWorkingLocation: currentUser?.employeeWorkingLocation,
-      employeeDepartmentID: currentUser?.departmentID,
-      employeeDepartmentName: departmentName,
-      employeeRoleID: currentUser?.roleID,
-      employeeRoleName: result[0]?.roleName,
-      employeeDOJ: currentUser?.dateOfJoining,
-      trainingsCompleted: currentUser?.trainingsCompleted,
-    });
+    return res.status(200).json(userDetails[0]);
   } catch (error) {
+    console.error(error);
     return next(createError(500, "Something went wrong at server's end!"));
   }
 };

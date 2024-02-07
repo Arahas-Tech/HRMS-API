@@ -56,6 +56,12 @@ module.exports.editCity = async (req, res, next) => {
   try {
     let { cityID, editedCityName } = req.body;
 
+    const existingCity = CityModel.findById(cityID);
+
+    if (existingCity) {
+      return next(createError(500, "City already exists"));
+    }
+
     await CityModel.findOneAndUpdate(
       { _id: cityID },
       {

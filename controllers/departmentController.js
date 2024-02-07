@@ -40,7 +40,13 @@ module.exports.editDepartment = async (req, res, next) => {
   try {
     let { departmentID, editedDepartmentName } = req.body;
 
-    const editedDepartmentDetails = await DepartmentModel.findOneAndUpdate(
+    const existingDepartment = DepartmentModel.findById(departmentID);
+
+    if (existingDepartment) {
+      return next(createError(500, "Department already exists"));
+    }
+
+    await DepartmentModel.findOneAndUpdate(
       { _id: departmentID },
       {
         $set: {

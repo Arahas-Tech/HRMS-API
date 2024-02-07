@@ -42,6 +42,7 @@ module.exports.addTraining = async (req, res, next) => {
       $or: [
         { trainingID: data.trainingID },
         { trainingName: data.trainingName },
+        { trainingPDF: data.trainingPDF },
       ],
     });
 

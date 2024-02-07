@@ -292,7 +292,19 @@ module.exports.bulkAddEmployees = async (req, res, next) => {
 
 module.exports.editEmployee = async (req, res, next) => {
   try {
-    const { employeeID, ...data } = req.body;
+    const { employeeID, employeeName, ...data } = req.body;
+
+    // Check if another employee with the same name exists
+    const existingEmployee = await EmployeeModel.findOne({
+      employeeName: employeeName,
+      employeeID: { $ne: employeeID }, // Exclude the current employee being edited
+    });
+
+    if (existingEmployee) {
+      return res.status(400).json({
+        message: "Another employee with the same name already exists",
+      });
+    }
 
     const editedEmployeeDetails = await EmployeeModel.findOneAndUpdate(
       { employeeID: employeeID },
@@ -300,15 +312,14 @@ module.exports.editEmployee = async (req, res, next) => {
         $set: {
           ...data, // Update all fields
         },
-      },
-      { new: true } // To get the updated document as a result
+      }
     );
 
     if (!editedEmployeeDetails) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    return res.status(200).json(editedEmployeeDetails);
+    return res.status(200).json("Successfully updated details");
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }

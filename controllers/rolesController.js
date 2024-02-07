@@ -41,7 +41,7 @@ module.exports.editRole = async (req, res, next) => {
   try {
     let { roleID, editedRoleDescription } = req.body;
 
-    const editedRoleDetails = await RolesModel.findOneAndUpdate(
+    await RolesModel.findOneAndUpdate(
       { roleID: roleID },
       {
         $set: {

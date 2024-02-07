@@ -37,9 +37,12 @@ module.exports.editState = async (req, res, next) => {
   try {
     let { stateID, editedStateName } = req.body;
 
-    const existingState = StateModel.findById(stateID);
+    const existingState = await StateModel.find({
+      stateName: editedStateName,
+    });
 
-    if (existingState) {
+    // ? Check if existingState array has any elements
+    if (existingState && existingState.length > 0) {
       return next(createError(500, "State already exists"));
     }
 

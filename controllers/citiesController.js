@@ -56,9 +56,12 @@ module.exports.editCity = async (req, res, next) => {
   try {
     let { cityID, editedCityName } = req.body;
 
-    const existingCity = CityModel.findById(cityID);
+    const existingCity = await CityModel.find({
+      cityName: editedCityName,
+    });
 
-    if (existingCity) {
+    // ? Check if existingCity array has any elements
+    if (existingCity && existingCity.length > 0) {
       return next(createError(500, "City already exists"));
     }
 

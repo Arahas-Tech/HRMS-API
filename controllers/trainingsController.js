@@ -7,7 +7,7 @@ module.exports.getAllTrainings = async (_req, res, next) => {
 
     return res.status(200).json(getAllTrainings);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -16,7 +16,7 @@ module.exports.getAllTrainingsCount = async (_req, res, next) => {
     const getAllTrainingsCount = (await TrainingModel.find()).length;
     return res.status(200).json(getAllTrainingsCount);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -30,7 +30,7 @@ module.exports.getTrainingsDetailByID = async (req, res, next) => {
       trainingName: trainingDetails.trainingName,
     });
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -65,18 +65,24 @@ module.exports.editTraining = async (req, res, next) => {
   try {
     let { trainingID, editedTrainingName } = req.body;
 
-    const editedTrainingDetails = await TrainingModel.findByIdAndUpdate(
-      trainingID,
-      {
-        $set: {
-          trainingName: editedTrainingName,
-        },
-      }
-    );
+    const existingTraining = await TrainingModel.find({
+      trainingName: editedTrainingName,
+    });
 
-    return res.status(200).json(editedTrainingDetails);
+    // ? Check if existingTraining array has any elements
+    if (existingTraining && existingTraining.length > 0) {
+      return next(createError(500, "Training already exists"));
+    }
+
+    await TrainingModel.findByIdAndUpdate(trainingID, {
+      $set: {
+        trainingName: editedTrainingName,
+      },
+    });
+
+    return res.status(200).json("Successfully updated details");
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -86,7 +92,7 @@ module.exports.deleteTraining = async (req, res, next) => {
     const deletedTraining = await TrainingModel.findByIdAndDelete(trainingID);
 
     return res.status(200).json({
-      message: "Training SuccessFully Deleted!",
+      message: "Training successFully deleted!",
       data: deletedTraining,
     });
   } catch (error) {

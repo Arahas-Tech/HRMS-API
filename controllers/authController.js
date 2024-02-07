@@ -132,7 +132,6 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
 
     return res.status(200).json(userDetails[0]);
   } catch (error) {
-    console.error(error);
     return next(createError(500, "Something went wrong at server's end!"));
   }
 };

@@ -40,9 +40,12 @@ module.exports.editDepartment = async (req, res, next) => {
   try {
     let { departmentID, editedDepartmentName } = req.body;
 
-    const existingDepartment = DepartmentModel.findById(departmentID);
+    const existingDepartment = await DepartmentModel.find({
+      departmentName: editedDepartmentName,
+    });
 
-    if (existingDepartment) {
+    // ? Check if existingDepartment array has any elements
+    if (existingDepartment && existingDepartment.length > 0) {
       return next(createError(500, "Department already exists"));
     }
 

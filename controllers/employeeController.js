@@ -195,10 +195,11 @@ module.exports.addEmployee = async (req, res, next) => {
 
     const existingEmployee = await EmployeeModel.findOne({
       $or: [
-        { employeeEmail: data.employeeEmail },
-        { employeeID: data.employeeID },
+        { employeeEmail: data.employeeEmail?.toLowerCase() },
+        { employeeID: data.employeeID?.toLowerCase() },
       ],
     });
+
     if (existingEmployee) {
       return next(createError(400, "Email or Employee ID already exists!"));
     }
@@ -285,7 +286,6 @@ module.exports.bulkAddEmployees = async (req, res, next) => {
 
     return res.status(200).send("File uploaded successfully.");
   } catch (error) {
-    console.error(error);
     return res.status(500).send("Error uploading file.");
   }
 };
@@ -310,7 +310,7 @@ module.exports.editEmployee = async (req, res, next) => {
 
     return res.status(200).json(editedEmployeeDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 

@@ -1,4 +1,5 @@
 const EmployeeModel = require("../models/employeeModel");
+const DepartmentModel = require("../models/departmentModel");
 const DateConverter = require("../utils/DateConverter");
 const createError = require("../utils/errorHandler");
 
@@ -31,6 +32,54 @@ module.exports.getAllEmployees = async (_req, res, next) => {
 
     const result = await EmployeeModel.aggregate(roleNamePipeline);
 
+    const departmentNamePipeline = [
+      {
+        $lookup: {
+          from: "departments",
+          localField: "departmentID",
+          foreignField: "_id",
+          as: "departmentNamesArray",
+        },
+      },
+      {
+        $unwind: "$departmentNamesArray",
+      },
+      {
+        $project: {
+          _id: 0,
+          departmentName: "$departmentNamesArray.departmentName",
+        },
+      },
+    ];
+
+    const designationNamePipeline = [
+      {
+        $lookup: {
+          from: "designations",
+          localField: "designationID",
+          foreignField: "_id",
+          as: "designationNamesArray",
+        },
+      },
+      {
+        $unwind: "$designationNamesArray",
+      },
+      {
+        $project: {
+          _id: 0,
+          departmentName: "$designationNamesArray.designationName",
+        },
+      },
+    ];
+
+    const departmentName = await EmployeeModel.aggregate(
+      departmentNamePipeline
+    );
+
+    const designationName = await EmployeeModel.aggregate(
+      designationNamePipeline
+    );
+
     const employeeData = allEmployees
       .map((employee, index) => {
         const dateOfJoiningInReadableFormat = DateConverter(
@@ -45,6 +94,8 @@ module.exports.getAllEmployees = async (_req, res, next) => {
               employeeRoleID: employee.roleID,
               employeeRoleName: result[index]?.roleName,
               employeeDesignation: employee.employeeDesignation,
+              employeeDepartment: departmentName[index]?.departmentName,
+              employeeDesignation: designationName[index]?.designationName,
               trainingsCompleted: employee.trainingsCompleted,
               dateOfJoining: dateOfJoiningInReadableFormat,
             }
@@ -57,7 +108,6 @@ module.exports.getAllEmployees = async (_req, res, next) => {
     return next(createError(500, `Something went wrong!`));
   }
 };
-
 module.exports.getAllEmployeesForManager = async (_req, res, next) => {
   try {
     const allEmployees = await EmployeeModel.find({
@@ -129,10 +179,7 @@ module.exports.addEmployee = async (req, res, next) => {
       return next(createError(500, "Error saving details!"));
     }
 
-    return res.status(200).json({
-      message: "Employee Successfully Registered!",
-      data: savedEmployeeDetails,
-    });
+    return res.status(200).json("Employee Successfully Registered!");
   } catch (error) {
     return next(createError(error));
   }

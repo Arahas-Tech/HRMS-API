@@ -30,9 +30,9 @@ const EmployeeSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
-    employeeDesignation: { type: String, required: true },
-    employeeWorkingState: { type: String, required: true },
-    employeeWorkingLocation: { type: String, required: true },
+    employeeDesignation: { type: mongoose.Schema.ObjectId, required: true },
+    employeeWorkingState: { type: mongoose.Schema.ObjectId, required: true },
+    employeeWorkingLocation: { type: mongoose.Schema.ObjectId, required: true },
     departmentID: {
       type: mongoose.Schema.ObjectId,
       required: true,

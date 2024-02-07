@@ -1,3 +1,4 @@
+const { isValidObjectId } = require("mongoose");
 const CityModel = require("../models/cityModel");
 const createError = require("../utils/errorHandler");
 
@@ -24,8 +25,28 @@ module.exports.addCity = async (req, res, next) => {
 
 module.exports.getAllCities = async (_req, res, next) => {
   try {
-    const getAllCity = await CityModel.find();
-    return res.status(200).json(getAllCity);
+    const citiesList = await CityModel.aggregate([
+      {
+        $lookup: {
+          from: "states",
+          localField: "stateID",
+          foreignField: "_id",
+          as: "stateNameArray",
+        },
+      },
+      {
+        $unwind: "$stateNameArray",
+      },
+      {
+        $project: {
+          _id: 1,
+          cityName: 1,
+          stateName: "$stateNameArray.stateName",
+        },
+      },
+    ]);
+
+    return res.status(200).json(citiesList);
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
   }
@@ -61,5 +82,28 @@ module.exports.deleteCity = async (req, res, next) => {
     });
   } catch (error) {
     return next(createError(error));
+  }
+};
+
+module.exports.fetchCitiesByState = async (req, res, next) => {
+  try {
+    const stateID = req.query.id;
+
+    const filteredCities = await CityModel.find({
+      stateID: stateID,
+    });
+
+    if (!filteredCities) {
+      return next(createError(404, "No city found for selected state!"));
+    }
+
+    const modifiedFilteredCities = filteredCities.map((city) => ({
+      cityName: city.cityName,
+      cityID: city._id,
+    }));
+
+    return res.status(200).json(modifiedFilteredCities);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error.message}`));
   }
 };

@@ -7,7 +7,7 @@ const {
 const authRouter = express.Router();
 
 //Employee Auth
-authRouter.post("/login", login);
+authRouter.post("/login-user", login);
 authRouter.get("/logout", logout);
 
 //User Details

@@ -10,7 +10,7 @@ const CitySchema = new mongoose.Schema(
     stateID: {
       type: mongoose.Schema.ObjectId,
       ref: "states",
-      unique: true,
+      unique: false,
       required: true,
     },
     isActive: {

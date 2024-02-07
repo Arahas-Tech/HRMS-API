@@ -71,7 +71,7 @@ app.use((err, _req, res, _next) => {
     .send(err.errorMessage || "Something went wrong at server's end!");
 });
 
-// Connect to MongoDB
+// ? Connect to MongoDB
 connectToDB();
 
 // Start the server

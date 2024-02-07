@@ -25,8 +25,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS headers setup
-app.use((_, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+app.use((req, res, next) => {
+  const allowedOrigins = ["http://localhost:5000", "https://arth.arahas.com"];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.header(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, PATCH, DELETE, OPTIONS"

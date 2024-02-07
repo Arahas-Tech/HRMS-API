@@ -12,7 +12,6 @@ module.exports.addProject = async (req, res, next) => {
       $or: [
         { projectCode: data?.projectCode },
         { projectName: data?.projectName },
-        { projectDescription: data?.projectDescription },
       ],
     });
 

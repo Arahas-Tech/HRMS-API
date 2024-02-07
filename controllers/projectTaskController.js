@@ -76,7 +76,7 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
 
     return res.status(200).json(projectTaskEffortDetailsModified);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -97,10 +97,9 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
     });
 
     if (!projectTaskDetails) {
-      return res.status(404).json({
-        message: `Project Tasks not found for ${employeeID}
-        `,
-      });
+      return next(
+        createError(404, `Project Tasks not found for ${employeeID}`)
+      );
     }
 
     const projectTaskDetailsModified = await Promise.all(
@@ -129,8 +128,7 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
             projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
           };
         } catch (error) {
-          console.error("Error while aggregating data:", error);
-          throw error; // You may want to handle errors appropriately
+          return next(createError(500, "Something went wrong"));
         }
       })
     );
@@ -144,7 +142,7 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
 
     return res.status(200).json(sortedTaskData);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -190,7 +188,7 @@ module.exports.getAllProjectTaskByProjectAndEmployee = async (
 
     return res.status(200).json(projectTaskDetailsModified);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -213,9 +211,7 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
     });
 
     if (!projectTaskDetails || projectTaskDetails.length === 0) {
-      return res.status(404).json({
-        message: `Project Tasks not found ${projectCode}`,
-      });
+      return res.status(404).json(`Project Tasks not found ${projectCode}`);
     }
 
     const projectTaskDetailsModified = await Promise.all(
@@ -246,6 +242,6 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
 
     return res.status(200).json(projectTaskDetailsModified);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, "Something went wrong"));
   }
 };

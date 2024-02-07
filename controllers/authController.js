@@ -36,7 +36,8 @@ module.exports.login = async (req, res, next) => {
 
     // Update the currentEmployee's accessToken field
     currentEmployee.accessToken = token;
-    await currentEmployee.save(); // Save the updated employee with accessToken
+    // Save the updated employee
+    await currentEmployee.save();
 
     res.status(200).json({
       accessToken: token,

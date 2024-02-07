@@ -10,7 +10,7 @@ const {
 } = require("../controllers/designationController");
 
 designationRouter.get("/getAllDesignations", verifyAdmin, getAllDesignations);
-designationRouter.post("/addDesignation", verifyAdmin, addDesignation);
+designationRouter.post("/addDesignation", addDesignation);
 designationRouter.patch("/editDesignation", verifyAdmin, editDesignation);
 designationRouter.delete(
   "/deleteDesignation/:id",

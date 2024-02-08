@@ -41,7 +41,7 @@ module.exports.editDepartment = async (req, res, next) => {
     let { departmentID, editedDepartmentName } = req.body;
 
     const existingDepartment = await DepartmentModel.find({
-      departmentName: editedDepartmentName,
+      departmentName: editedDepartmentName.trim(),
     });
 
     // ? Check if existingDepartment array has any elements
@@ -53,7 +53,7 @@ module.exports.editDepartment = async (req, res, next) => {
       { _id: departmentID },
       {
         $set: {
-          departmentName: editedDepartmentName,
+          departmentName: editedDepartmentName.trim(),
         },
       }
     );

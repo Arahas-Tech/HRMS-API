@@ -8,8 +8,10 @@ const bcrypt = require("bcryptjs");
 
 module.exports.getAllEmployees = async (_req, res, next) => {
   try {
-    const allEmployees = await EmployeeModel.find();
+    // Fetching only active employees
+    const allEmployees = await EmployeeModel.find({ isActive: true });
 
+    // Aggregation pipelines for fetching additional details
     const roleNamePipeline = [
       {
         $lookup: {
@@ -25,6 +27,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       {
         $project: {
           _id: 0,
+          roleID: 1,
           roleName: "$roleName.roleName",
         },
       },
@@ -44,7 +47,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: "$departmentNamesArray._id",
           departmentName: "$departmentNamesArray.departmentName",
         },
       },
@@ -64,7 +67,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: "$designationNamesArray._id",
           designationName: "$designationNamesArray.designationName",
         },
       },
@@ -84,7 +87,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: "$stateNamesArray._id",
           stateName: "$stateNamesArray.stateName",
         },
       },
@@ -104,28 +107,30 @@ module.exports.getAllEmployees = async (_req, res, next) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: "$cityNamesArray._id",
           cityName: "$cityNamesArray.cityName",
         },
       },
     ];
 
-    const roleNames = await EmployeeModel.aggregate(roleNamePipeline);
+    // Fetching additional details using the pipelines
+    const [
+      roleNames,
+      departmentNames,
+      designationNames,
+      stateNames,
+      cityNames,
+    ] = await Promise.all([
+      EmployeeModel.aggregate(roleNamePipeline),
+      EmployeeModel.aggregate(departmentNamePipeline),
+      EmployeeModel.aggregate(designationNamePipeline),
+      EmployeeModel.aggregate(stateNamePipeline),
+      EmployeeModel.aggregate(cityNamePipeline),
+    ]);
 
-    const departmentNames = await EmployeeModel.aggregate(
-      departmentNamePipeline
-    );
-
-    const designationNames = await EmployeeModel.aggregate(
-      designationNamePipeline
-    );
-
-    const stateNames = await EmployeeModel.aggregate(stateNamePipeline);
-
-    const cityNames = await EmployeeModel.aggregate(cityNamePipeline);
-
+    // Mapping the employee data
     const employeeData = allEmployees
-      .map((employee, index) => {
+      .map((employee) => {
         const dateOfJoiningInReadableFormat = DateConverter(
           employee.dateOfJoining
         );
@@ -136,11 +141,21 @@ module.exports.getAllEmployees = async (_req, res, next) => {
               employeeName: employee.employeeName,
               employeeEmail: employee.employeeEmail,
               employeeRoleID: employee.roleID,
-              employeeRoleName: roleNames[index]?.roleName,
-              employeeDepartment: departmentNames[index]?.departmentName,
-              employeeDesignation: designationNames[index]?.designationName,
-              employeeWorkingState: stateNames[index]?.stateName,
-              employeeWorkingCity: cityNames[index]?.cityName,
+              employeeRoleName: roleNames.find(
+                (role) => role.roleID === employee.roleID
+              )?.roleName,
+              employeeDepartment: departmentNames.find((department) =>
+                department._id.equals(employee.departmentID)
+              )?.departmentName,
+              employeeDesignation: designationNames.find((designation) =>
+                designation._id.equals(employee.employeeDesignation)
+              )?.designationName,
+              employeeWorkingState: stateNames.find((state) =>
+                state._id.equals(employee.employeeWorkingState)
+              )?.stateName,
+              employeeWorkingCity: cityNames.find((city) =>
+                city._id.equals(employee.employeeWorkingLocation)
+              )?.cityName,
               trainingsCompleted: employee.trainingsCompleted,
               dateOfJoining: dateOfJoiningInReadableFormat,
             }
@@ -157,7 +172,14 @@ module.exports.getAllEmployees = async (_req, res, next) => {
 module.exports.getAllEmployeesForManager = async (_req, res, next) => {
   try {
     const allEmployees = await EmployeeModel.find({
-      roleID: "ATPL-Employee",
+      $and: [
+        {
+          roleID: "ATPL-Employee",
+        },
+        {
+          isActive: true,
+        },
+      ],
     });
 
     const employeeData = allEmployees.map((employee) => {
@@ -178,12 +200,70 @@ module.exports.getAllEmployeesForManager = async (_req, res, next) => {
 
 module.exports.getEmployeeByID = async (req, res, next) => {
   try {
-    const { employeeID } = req.body;
-    const filteredEmployee = await EmployeeModel.findOne({
-      employeeID: employeeID,
-    });
+    const employeeID = req.query.employeeID;
 
-    return res.status(200).json(filteredEmployee);
+    const aggregationPipeline = [
+      {
+        $match: { employeeID },
+      },
+      {
+        $lookup: {
+          from: "roles",
+          localField: "roleID",
+          foreignField: "roleID",
+          as: "role",
+        },
+      },
+      {
+        $lookup: {
+          from: "departments",
+          localField: "departmentID",
+          foreignField: "_id",
+          as: "department",
+        },
+      },
+      {
+        $lookup: {
+          from: "designations",
+          localField: "employeeDesignation",
+          foreignField: "_id",
+          as: "designation",
+        },
+      },
+      {
+        $lookup: {
+          from: "states",
+          localField: "employeeWorkingState",
+          foreignField: "_id",
+          as: "state",
+        },
+      },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "employeeWorkingLocation",
+          foreignField: "_id",
+          as: "city",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          employeeID: 1,
+          employeeName: 1,
+          employeeEmail: 1,
+          roleID: 1,
+          departmentID: 1,
+          employeeDesignation: 1,
+          employeeWorkingState: 1,
+          employeeWorkingLocation: 1,
+        },
+      },
+    ];
+
+    const employeeDetails = await EmployeeModel.aggregate(aggregationPipeline);
+
+    return res.status(200).json(employeeDetails[0]);
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
   }
@@ -296,27 +376,29 @@ module.exports.editEmployee = async (req, res, next) => {
 
     // Check if another employee with the same name exists
     const existingEmployee = await EmployeeModel.findOne({
-      employeeName: employeeName,
+      employeeName: employeeName.trim(),
       employeeID: { $ne: employeeID }, // Exclude the current employee being edited
     });
 
     if (existingEmployee) {
-      return res.status(400).json({
-        message: "Another employee with the same name already exists",
-      });
+      return res
+        .status(400)
+        .json("Another employee with the same name already exists");
     }
+
+    console.log(data);
 
     const editedEmployeeDetails = await EmployeeModel.findOneAndUpdate(
       { employeeID: employeeID },
       {
         $set: {
-          ...data, // Update all fields
+          ...data, // Update rest fields
         },
       }
     );
 
     if (!editedEmployeeDetails) {
-      return res.status(404).json({ message: "Employee not found" });
+      return res.status(404).json("Employee not found");
     }
 
     return res.status(200).json("Successfully updated details");
@@ -328,9 +410,12 @@ module.exports.editEmployee = async (req, res, next) => {
 module.exports.deleteEmployee = async (req, res, next) => {
   try {
     let employeeID = req.params.id;
-    const deletedEmployee = await EmployeeModel.findOneAndDelete({
-      employeeID: employeeID,
-    });
+    const deletedEmployee = await EmployeeModel.findOneAndUpdate(
+      { employeeID: employeeID },
+      {
+        isActive: false,
+      }
+    );
 
     return res.status(200).json({
       message: "Employee SuccessFully Removed!",

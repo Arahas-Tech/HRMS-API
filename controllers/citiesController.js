@@ -57,7 +57,7 @@ module.exports.editCity = async (req, res, next) => {
     let { cityID, editedCityName } = req.body;
 
     const existingCity = await CityModel.find({
-      cityName: editedCityName,
+      cityName: editedCityName.trim(),
     });
 
     // ? Check if existingCity array has any elements
@@ -69,7 +69,7 @@ module.exports.editCity = async (req, res, next) => {
       { _id: cityID },
       {
         $set: {
-          cityName: editedCityName,
+          cityName: editedCityName.trim(),
         },
       }
     );

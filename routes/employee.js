@@ -21,7 +21,11 @@ employeesRouter.get(
   verifyToken,
   getAllEmployeesForManager
 );
-employeesRouter.get("/getEmployeeByID", verifyToken, getEmployeeByID);
+employeesRouter.get(
+  "/getEmployeeByID?:employeeID",
+  verifyAdmin,
+  getEmployeeByID
+);
 employeesRouter.post("/addEmployee", addEmployee);
 employeesRouter.post(
   "/bulkAdd",

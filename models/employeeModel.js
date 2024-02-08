@@ -64,6 +64,10 @@ const EmployeeSchema = new mongoose.Schema(
     accessToken: {
       type: String,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
     createdBy: {
       type: String,
       minlength: 5,

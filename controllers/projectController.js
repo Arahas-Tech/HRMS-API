@@ -10,8 +10,8 @@ module.exports.addProject = async (req, res, next) => {
 
     const existingProject = await ProjectModel.findOne({
       $or: [
-        { projectCode: data?.projectCode },
-        { projectName: data?.projectName },
+        { projectCode: data?.projectCode.trim() },
+        { projectName: data?.projectName.trim() },
       ],
     });
 
@@ -229,6 +229,15 @@ module.exports.editProject = async (req, res, next) => {
     const projectCode = req.params.projectCode;
     const { updatedProjectName, updatedProjectDescription, updatedDeadline } =
       req.body;
+
+    const existingProject = await ProjectModel.find({
+      projectName: updatedProjectName.trim(),
+    });
+
+    // ? Check if existingProject array has any elements
+    if (existingProject && existingProject.length > 0) {
+      return next(createError(500, "Project already exists"));
+    }
 
     const editedProjectDetails = await ProjectModel.findOneAndUpdate(
       { projectCode: projectCode },

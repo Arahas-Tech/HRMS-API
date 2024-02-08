@@ -18,6 +18,10 @@ module.exports.login = async (req, res, next) => {
 
     if (!currentEmployee) return next(createError(404, "Employee Not Found!"));
 
+    if (!currentEmployee.isActive) {
+      return next(createError(404, "Employee Not Found!"));
+    }
+
     const comparedPassword = await bcrypt.compare(
       employeeEnteredPassword,
       currentEmployee.employeePassword

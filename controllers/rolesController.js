@@ -45,7 +45,7 @@ module.exports.editRole = async (req, res, next) => {
       { roleID: roleID },
       {
         $set: {
-          roleDescription: editedRoleDescription,
+          roleDescription: editedRoleDescription.trim(),
         },
       }
     );

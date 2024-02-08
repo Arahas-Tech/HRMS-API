@@ -66,7 +66,7 @@ module.exports.editTraining = async (req, res, next) => {
     let { trainingID, editedTrainingName } = req.body;
 
     const existingTraining = await TrainingModel.find({
-      trainingName: editedTrainingName,
+      trainingName: editedTrainingName.trim(),
     });
 
     // ? Check if existingTraining array has any elements
@@ -76,7 +76,7 @@ module.exports.editTraining = async (req, res, next) => {
 
     await TrainingModel.findByIdAndUpdate(trainingID, {
       $set: {
-        trainingName: editedTrainingName,
+        trainingName: editedTrainingName.trim(),
       },
     });
 

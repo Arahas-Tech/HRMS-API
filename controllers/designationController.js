@@ -38,7 +38,7 @@ module.exports.editDesignation = async (req, res, next) => {
     let { designationID, editedDesignationName } = req.body;
 
     const existingDesignation = await DesignationModel.find({
-      designationName: editedDesignationName,
+      designationName: editedDesignationName.trim(),
     });
 
     // ? Check if existingDesignation array has any elements
@@ -50,7 +50,7 @@ module.exports.editDesignation = async (req, res, next) => {
       { _id: designationID },
       {
         $set: {
-          designationName: editedDesignationName,
+          designationName: editedDesignationName.trim(),
         },
       }
     );

@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -40,6 +41,9 @@ app.use((req, res, next) => {
     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   next();
+});
+app.get("/", async (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Routes

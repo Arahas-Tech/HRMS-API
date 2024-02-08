@@ -75,6 +75,33 @@ module.exports.addEmployeeToProject = async (req, res, next) => {
   }
 };
 
+module.exports.getAllProjects = async (req, res, next) => {
+  try {
+    const getAllProjects = await ProjectModel.find();
+
+    if (!getAllProjects) {
+      return next(createError(404, "No projects found"));
+    }
+
+    const projectModifiedDetails = getAllProjects.map((data) => {
+      return {
+        projectCode: data.projectCode,
+        projectName: data.projectName,
+        projectDescription: data.projectDescription,
+        projectManager: data.projectManager,
+        projectStartDate: data.projectStartDate,
+        projectDeadline: data.projectDeadline,
+        projectAssignedDetails: data.projectAssignedDetails,
+        projectCompleted: data.projectCompleted,
+      };
+    });
+
+    return res.status(200).json(projectModifiedDetails);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error}`));
+  }
+};
+
 module.exports.getAllProjectsByEmployee = async (req, res, next) => {
   try {
     const employeeID = req.query.employeeID;

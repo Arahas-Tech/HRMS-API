@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getAllEmployees,
+  getAllManagers,
   getAllEmployeesForManager,
   getEmployeeByID,
   deleteEmployee,
@@ -16,6 +17,7 @@ const employeesRouter = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 employeesRouter.get("/getAllEmployees", verifyAdmin, getAllEmployees);
+employeesRouter.get("/getAllManagers", verifyAdmin, getAllManagers);
 employeesRouter.get(
   "/getAllEmployeesForManager",
   verifyToken,

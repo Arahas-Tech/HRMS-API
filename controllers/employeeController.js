@@ -198,6 +198,32 @@ module.exports.getAllEmployeesForManager = async (_req, res, next) => {
   }
 };
 
+module.exports.getAllManagers = async (_req, res, next) => {
+  try {
+    const allManagers = await EmployeeModel.find({
+      $and: [
+        {
+          roleID: "ATPL-PM",
+        },
+        {
+          isActive: true,
+        },
+      ],
+    });
+
+    const managerData = allManagers.map((manager) => {
+      return {
+        managerID: manager.employeeID,
+        managerName: manager.employeeName,
+      };
+    });
+
+    return res.status(200).json(managerData);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
 module.exports.getEmployeeByID = async (req, res, next) => {
   try {
     const employeeID = req.query.employeeID;

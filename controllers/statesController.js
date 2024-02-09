@@ -38,7 +38,8 @@ module.exports.editState = async (req, res, next) => {
     let { stateID, editedStateName } = req.body;
 
     const existingState = await StateModel.find({
-      stateName: editedStateName,
+      stateName: editedStateName.trim(),
+      _id: { $ne: stateID }, // Exclude the current record being edited
     });
 
     // ? Check if existingState array has any elements

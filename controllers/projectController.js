@@ -75,6 +75,42 @@ module.exports.addEmployeeToProject = async (req, res, next) => {
   }
 };
 
+module.exports.removeEmployeeFromProject = async (req, res, next) => {
+  try {
+    const projectCode = req.params.projectCode;
+    const { data } = req.body;
+    const totalRecords = data.length;
+
+    for (const employee of data) {
+      await ProjectModel.findOne({
+        projectCode: projectCode,
+        projectAssignedDetails: {
+          $elemMatch: {
+            employeeObjectID: employee.employeeObjectID,
+          },
+        },
+      });
+
+      const updatedProject = await ProjectModel.findOneAndUpdate(
+        { projectCode: projectCode }, // Search for the project by its unique projectCode
+        { $pull: { projectAssignedDetails: employee } } // Pull the new employees data to the 'projectAssignedDetails'
+      );
+
+      if (!updatedProject) {
+        return next(createError(404, "Project not found"));
+      }
+    }
+
+    res.status(200).json({
+      message: `${
+        totalRecords >= 2 ? "Employees" : "Employee"
+      }  removed from project successfully`,
+    });
+  } catch (error) {
+    return next(createError(500, "Failed to delete employee from project"));
+  }
+};
+
 module.exports.getAllProjects = async (req, res, next) => {
   try {
     const getAllProjects = await ProjectModel.find();
@@ -259,6 +295,7 @@ module.exports.editProject = async (req, res, next) => {
 
     const existingProject = await ProjectModel.find({
       projectName: updatedProjectName.trim(),
+      projectCode: { $ne: projectCode }, // Exclude the current record being edited
     });
 
     // ? Check if existingProject array has any elements

@@ -67,6 +67,7 @@ module.exports.editTraining = async (req, res, next) => {
 
     const existingTraining = await TrainingModel.find({
       trainingName: editedTrainingName.trim(),
+      trainingID: { $ne: trainingID }, // Exclude the current record being edited
     });
 
     // ? Check if existingTraining array has any elements

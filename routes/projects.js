@@ -4,6 +4,7 @@ const {
   getAllProjectsByEmployee,
   addProject,
   addEmployeeToProject,
+  removeEmployeeFromProject,
   deleteProject,
   editProject,
   getProjectDetailByProjectCode,
@@ -46,6 +47,11 @@ projectsRouter.post(
   "/addEmployeeToProject/:projectCode",
   verifyToken,
   addEmployeeToProject
+);
+projectsRouter.post(
+  "/removeEmployeeFromProject/:projectCode",
+  verifyToken,
+  removeEmployeeFromProject
 );
 projectsRouter.patch("/editProject/:projectCode", verifyToken, editProject);
 projectsRouter.delete("/deleteProject/:id", verifyToken, deleteProject);

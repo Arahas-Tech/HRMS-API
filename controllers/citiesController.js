@@ -58,6 +58,7 @@ module.exports.editCity = async (req, res, next) => {
 
     const existingCity = await CityModel.find({
       cityName: editedCityName.trim(),
+      _id: { $ne: cityID }, // Exclude the current record being edited
     });
 
     // ? Check if existingCity array has any elements

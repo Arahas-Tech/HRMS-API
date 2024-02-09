@@ -39,6 +39,7 @@ module.exports.editDesignation = async (req, res, next) => {
 
     const existingDesignation = await DesignationModel.find({
       designationName: editedDesignationName.trim(),
+      _id: { $ne: designationID }, // Exclude the current record being edited
     });
 
     // ? Check if existingDesignation array has any elements
@@ -57,6 +58,7 @@ module.exports.editDesignation = async (req, res, next) => {
 
     return res.status(200).json("Successfully updated details");
   } catch (error) {
+    console.log(error);
     return next(createError(500, `Something went wrong! ${error}`));
   }
 };

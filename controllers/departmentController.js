@@ -42,6 +42,7 @@ module.exports.editDepartment = async (req, res, next) => {
 
     const existingDepartment = await DepartmentModel.find({
       departmentName: editedDepartmentName.trim(),
+      _id: { $ne: departmentID }, // Exclude the current record being edited
     });
 
     // ? Check if existingDepartment array has any elements

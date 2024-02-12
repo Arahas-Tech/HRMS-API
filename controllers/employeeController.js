@@ -382,6 +382,10 @@ module.exports.bulkAddEmployees = async (req, res, next) => {
       }
 
       item.employeePassword = hashedPassword;
+      item.dateOfJoining = new Date(
+        (item.dateOfJoining - 25569) * 86400 * 1000
+      ).toISOString();
+
       const newEmployeeDetails = new EmployeeModel(item);
 
       const savedEmployeeDetails = await newEmployeeDetails.save();
@@ -392,6 +396,7 @@ module.exports.bulkAddEmployees = async (req, res, next) => {
 
     return res.status(200).send("File uploaded successfully.");
   } catch (error) {
+    console.log(error);
     return res.status(500).send("Error uploading file.");
   }
 };
@@ -411,8 +416,6 @@ module.exports.editEmployee = async (req, res, next) => {
         .status(400)
         .json("Another employee with the same name already exists");
     }
-
-    console.log(data);
 
     const editedEmployeeDetails = await EmployeeModel.findOneAndUpdate(
       { employeeID: employeeID },

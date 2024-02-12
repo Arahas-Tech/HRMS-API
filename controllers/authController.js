@@ -35,7 +35,10 @@ module.exports.login = async (req, res, next) => {
         employeeID: currentEmployee.employeeID,
         roleID: currentEmployee.roleID,
       },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "3h",
+      }
     );
 
     // Update the currentEmployee's accessToken field

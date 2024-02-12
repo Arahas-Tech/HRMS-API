@@ -20,18 +20,26 @@ const verifyToken = (req, _res, next) => {
 // Function to verify admin access
 const verifyAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (
-      req.body.createdBy === "ATPL-ADMIN" ||
-      req.body.createdBy === "ATPL-HR" ||
-      req.body.createdBy === "ATR-Employee" ||
-      req.RoleID === "ATPL-ADMIN" ||
-      req.RoleID === "ATPL-HR" ||
-      req.RoleID === "ATR-Employee"
-    ) {
-      next();
-    } else {
-      return next(createError(403, "You are not authorized as an admin!"));
-    }
+    // ? Extracting the token from Authorization header
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+
+    // ? Verify the JWT token to get the decoded payload
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return next(createError(403, "Invalid token"));
+      }
+
+      // ? Extract the role ID from the decoded payload
+      const roleID = decoded.roleID;
+
+      // ? Check if the role ID allows access
+      if (roleID === "ATPL-ADMIN") {
+        next();
+      } else {
+        return next(createError(403, "You are not authorized as an admin!"));
+      }
+    });
   });
 };
 

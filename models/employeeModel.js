@@ -43,6 +43,10 @@ const EmployeeSchema = new mongoose.Schema(
       maxlength: 1024,
       required: true,
     },
+    reportingManager: {
+      type: String,
+      required: false,
+    },
     trainingsCompleted: [
       {
         training: {

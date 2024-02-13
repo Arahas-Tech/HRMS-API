@@ -11,15 +11,15 @@ const projectTaskSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    projectTaskSummary: {
+    summary: {
       type: String,
       required: true,
     },
-    projectTaskEffortsTime: {
+    hoursInvested: {
       type: String,
       required: true,
     },
-    projectTaskEffortDate: {
+    date: {
       type: Date,
       required: true,
     },

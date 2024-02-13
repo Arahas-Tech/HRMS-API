@@ -143,6 +143,118 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
   }
 };
 
+module.exports.forgotPassword = async (req, res, next) => {
+  try {
+    let { email, oldPassword, newPassword } = req.body;
+
+    if (!email && !oldPassword && !newPassword)
+      return next(createError(400, "All fields are required!"));
+
+    const employee = await EmployeeModel.findOne({
+      employeeEmail: email,
+    });
+
+    if (!employee) return next(createError(404, "Employee Not Found!"));
+
+    if (!employee.isActive) {
+      return next(createError(404, "Employee Not Found!"));
+    }
+
+    const comparedPassword = await bcrypt.compare(
+      oldPassword,
+      employee.employeePassword
+    );
+
+    if (!comparedPassword) {
+      return next(
+        createError(
+          400,
+          "The provided password does not match the current password."
+        )
+      );
+    }
+
+    const salt = await bcrypt.genSalt();
+    if (!salt) {
+      return next(createError(500, "Error generating salt!"));
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+    if (!newHashedPassword) {
+      return next(createError(500, "Error hashing password!"));
+    }
+
+    employee.employeePassword = newHashedPassword;
+    const employeeUpdatedDetails = new EmployeeModel(employee);
+
+    const savedEmployeeDetails = await employeeUpdatedDetails.save();
+    if (!savedEmployeeDetails) {
+      return next(createError(500, "Error saving details!"));
+    }
+
+    return res.status(200).json("Password changed successfully!");
+  } catch (error) {
+    console.log(error);
+    return next(createError(500, "Something went wrong at server's end!"));
+  }
+};
+
+module.exports.changePassword = async (req, res, next) => {
+  try {
+    let { email, oldPassword, newPassword } = req.body;
+
+    if (!email && !oldPassword && !newPassword)
+      return next(createError(400, "All fields are required!"));
+
+    const employee = await EmployeeModel.findOne({
+      employeeEmail: email,
+    });
+
+    if (!employee) return next(createError(404, "Employee Not Found!"));
+
+    if (!employee.isActive) {
+      return next(createError(404, "Employee Not Found!"));
+    }
+
+    const comparedPassword = await bcrypt.compare(
+      oldPassword,
+      employee.employeePassword
+    );
+
+    if (!comparedPassword) {
+      return next(
+        createError(
+          400,
+          "The provided password does not match the current password."
+        )
+      );
+    }
+
+    const salt = await bcrypt.genSalt();
+    if (!salt) {
+      return next(createError(500, "Error generating salt!"));
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+    if (!newHashedPassword) {
+      return next(createError(500, "Error hashing password!"));
+    }
+
+    employee.employeePassword = newHashedPassword;
+    const employeeUpdatedDetails = new EmployeeModel(employee);
+
+    const savedEmployeeDetails = await employeeUpdatedDetails.save();
+    if (!savedEmployeeDetails) {
+      return next(createError(500, "Error saving details!"));
+    }
+
+    return res.status(200).json("Password changed successfully!");
+  } catch (error) {
+    console.log(error);
+    return next(createError(500, "Something went wrong at server's end!"));
+  }
+};
+
 module.exports.logout = async (_req, res, _next) => {
   res.clearCookie("accessToken");
   return res.status(200).json({ message: "Logout Success!" });

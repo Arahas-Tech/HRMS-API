@@ -9,10 +9,7 @@ module.exports.addProject = async (req, res, next) => {
     const newProject = new ProjectModel(data);
 
     const existingProject = await ProjectModel.findOne({
-      $or: [
-        { projectCode: data?.projectCode.trim() },
-        { projectName: data?.projectName.trim() },
-      ],
+      $or: [{ code: data?.code.trim() }, { name: data?.name.trim() }],
     });
 
     if (existingProject) {
@@ -31,14 +28,14 @@ module.exports.addProject = async (req, res, next) => {
 
 module.exports.addEmployeeToProject = async (req, res, next) => {
   try {
-    const projectCode = req.params.projectCode;
+    const code = req.params.code;
     const { data } = req.body;
     const totalRecords = data.length;
 
     for (const employee of data) {
       const existingInProject = await ProjectModel.findOne({
-        projectCode: projectCode,
-        projectAssignedDetails: {
+        code: code,
+        assignedDetails: {
           $elemMatch: {
             employeeObjectID: employee.employeeObjectID,
           },
@@ -55,8 +52,8 @@ module.exports.addEmployeeToProject = async (req, res, next) => {
         );
       } else {
         const updatedProject = await ProjectModel.findOneAndUpdate(
-          { projectCode: projectCode }, // Search for the project by its unique projectCode
-          { $push: { projectAssignedDetails: employee } } // Push the new employees data to the 'projectAssignedDetails'
+          { code: code }, // Search for the project by its unique code
+          { $push: { assignedDetails: employee } } // Push the new employees data to the 'assignedDetails'
         );
 
         if (!updatedProject) {
@@ -77,14 +74,14 @@ module.exports.addEmployeeToProject = async (req, res, next) => {
 
 module.exports.removeEmployeeFromProject = async (req, res, next) => {
   try {
-    const projectCode = req.params.projectCode;
+    const code = req.params.code;
     const { data } = req.body;
     const totalRecords = data.length;
 
     for (const employee of data) {
       await ProjectModel.findOne({
-        projectCode: projectCode,
-        projectAssignedDetails: {
+        code: code,
+        assignedDetails: {
           $elemMatch: {
             employeeObjectID: employee.employeeObjectID,
           },
@@ -92,8 +89,8 @@ module.exports.removeEmployeeFromProject = async (req, res, next) => {
       });
 
       const updatedProject = await ProjectModel.findOneAndUpdate(
-        { projectCode: projectCode }, // Search for the project by its unique projectCode
-        { $pull: { projectAssignedDetails: employee } } // Pull the new employees data to the 'projectAssignedDetails'
+        { code: code }, // Search for the project by its unique code
+        { $pull: { assignedDetails: employee } } // Pull the new employees data to the 'assignedDetails'
       );
 
       if (!updatedProject) {
@@ -111,24 +108,24 @@ module.exports.removeEmployeeFromProject = async (req, res, next) => {
   }
 };
 
-module.exports.getAllProjects = async (req, res, next) => {
+module.exports.getAllProjects = async (_req, res, next) => {
   try {
-    const getAllProjects = await ProjectModel.find();
+    const allProjects = await ProjectModel.find();
 
-    if (!getAllProjects) {
+    if (!allProjects) {
       return next(createError(404, "No projects found"));
     }
 
-    const projectModifiedDetails = getAllProjects.map((data) => {
+    const projectModifiedDetails = allProjects.map((data) => {
       return {
-        projectCode: data.projectCode,
-        projectName: data.projectName,
-        projectDescription: data.projectDescription,
+        code: data.code,
+        name: data.name,
+        description: data.description,
         projectManager: data.projectManager,
-        projectStartDate: data.projectStartDate,
-        projectDeadline: data.projectDeadline,
-        projectAssignedDetails: data.projectAssignedDetails,
-        projectCompleted: data.projectCompleted,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        assignedDetails: data.assignedDetails,
+        isCompleted: data.isCompleted,
       };
     });
 
@@ -142,20 +139,20 @@ module.exports.getAllProjectsByEmployee = async (req, res, next) => {
   try {
     const employeeID = req.query.employeeID;
 
-    const getAllProjectsByEmployee = await ProjectModel.find({
-      "projectAssignedDetails.employeeID": employeeID,
+    const allProjectsOfEmployee = await ProjectModel.find({
+      "assignedDetails.employeeID": employeeID,
     });
 
-    if (!getAllProjectsByEmployee) {
+    if (!allProjectsOfEmployee) {
       return next(createError(404, "No projects found"));
     }
 
-    const projectModifiedDetails = getAllProjectsByEmployee.map((data) => {
+    const projectModifiedDetails = allProjectsOfEmployee.map((data) => {
       return {
-        projectCode: data.projectCode,
-        projectName: data.projectName,
-        projectCompleted: data.projectCompleted,
-        projectDeadline: data.projectDeadline,
+        code: data.code,
+        name: data.name,
+        isCompleted: data.isCompleted,
+        endDate: data.endDate,
       };
     });
 
@@ -167,9 +164,9 @@ module.exports.getAllProjectsByEmployee = async (req, res, next) => {
 
 module.exports.getProjectDetailByProjectCode = async (req, res, next) => {
   try {
-    const projectCode = req.params.id;
+    const code = req.params.id;
     const projectDetails = await ProjectModel.findOne({
-      projectCode: projectCode,
+      code: code,
     });
 
     if (!projectDetails) {
@@ -182,8 +179,8 @@ module.exports.getProjectDetailByProjectCode = async (req, res, next) => {
     });
 
     return res.status(200).json({
-      projectName: projectDetails.projectName,
-      projectDeadline: projectDetails.projectDeadline,
+      name: projectDetails.name,
+      endDate: projectDetails.endDate,
       projectAllotedDuration: projectDetails.projectAllotedDuration,
       projectManager: projectManager.employeeName,
     });
@@ -205,9 +202,9 @@ module.exports.getProjectDetailsByManager = async (req, res, next) => {
 
     const projectModifiedDetails = projectDetails?.map((projectDetail) => {
       return {
-        projectCode: projectDetail.projectCode,
-        projectName: projectDetail.projectName,
-        projectAssignedDetails: projectDetail.projectAssignedDetails,
+        code: projectDetail.code,
+        name: projectDetail.name,
+        assignedDetails: projectDetail.assignedDetails,
       };
     });
 
@@ -235,16 +232,16 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
   next
 ) => {
   try {
-    const projectCode = req.params.id;
+    const code = req.params.id;
     const projectDetails = await ProjectModel.findOne({
-      projectCode: projectCode,
+      code: code,
     });
 
     if (!projectDetails) {
       return next(createError(404, "Project Not Found!"));
     }
 
-    const employeeIDs = projectDetails.projectAssignedDetails.map(
+    const employeeIDs = projectDetails.assignedDetails.map(
       (projectAssignedDetail) => projectAssignedDetail.employeeID
     );
 
@@ -270,17 +267,18 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
       employeeNamesMap[employee.employeeID] = employee.employeeName;
     });
 
-    const projectAssignedDetailsWithNames =
-      projectDetails.projectAssignedDetails.map((projectAssignedDetail) => ({
+    const assignedDetailsWithNames = projectDetails.assignedDetails.map(
+      (projectAssignedDetail) => ({
         employeeObjectID: projectAssignedDetail.employeeObjectID,
         employeeID: projectAssignedDetail.employeeID,
         employeeName: employeeNamesMap[projectAssignedDetail.employeeID],
-      }));
+      })
+    );
 
     return res.status(200).json({
-      projectCode: projectDetails.projectCode,
-      projectName: projectDetails.projectName,
-      projectAssignedDetails: projectAssignedDetailsWithNames,
+      code: projectDetails.code,
+      name: projectDetails.name,
+      assignedDetails: assignedDetailsWithNames,
     });
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));
@@ -289,13 +287,13 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
 
 module.exports.editProject = async (req, res, next) => {
   try {
-    const projectCode = req.params.projectCode;
+    const code = req.params.code;
     const { updatedProjectName, updatedProjectDescription, updatedDeadline } =
       req.body;
 
     const existingProject = await ProjectModel.find({
-      projectName: updatedProjectName.trim(),
-      projectCode: { $ne: projectCode }, // Exclude the current record being edited
+      name: updatedProjectName.trim(),
+      code: { $ne: code }, // Exclude the current record being edited
     });
 
     // ? Check if existingProject array has any elements
@@ -304,13 +302,13 @@ module.exports.editProject = async (req, res, next) => {
     }
 
     const editedProjectDetails = await ProjectModel.findOneAndUpdate(
-      { projectCode: projectCode },
+      { code: code },
       {
         $set: {
-          projectName: updatedProjectName,
-          projectDescription: updatedProjectDescription,
-          projectDeadline: updatedDeadline,
-          projectCompleted:
+          name: updatedProjectName,
+          description: updatedProjectDescription,
+          endDate: updatedDeadline,
+          isCompleted:
             new Date(updatedDeadline).getTime() ===
             new Date(new Date().setHours(0, 0, 0, 0)).getTime(),
         },
@@ -325,8 +323,8 @@ module.exports.editProject = async (req, res, next) => {
 
 module.exports.deleteProject = async (req, res, next) => {
   try {
-    let projectCode = req.params.id;
-    const deletedProject = await ProjectModel.findByIdAndDelete(projectCode);
+    let code = req.params.id;
+    const deletedProject = await ProjectModel.findByIdAndDelete(code);
 
     return res.status(200).json({
       message: "Project SuccessFully Deleted!",

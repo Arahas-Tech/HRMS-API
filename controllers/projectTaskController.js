@@ -11,18 +11,13 @@ module.exports.addProjectTask = async (req, res, next) => {
 
     for (const task of tasks) {
       const existingTaskForDate = await ProjectTaskModel.findOne({
-        projectTaskEffortDate: task.projectTaskEffortDate,
+        date: task.date,
         projectID: task.projectID,
         employeeID: task.employeeID,
       });
 
       if (existingTaskForDate) {
-        return next(
-          createError(
-            400,
-            `Tasks for ${task.projectTaskEffortDate} already exists!`
-          )
-        );
+        return next(createError(400, `Tasks for ${task.date} already exists!`));
       }
 
       const newTask = await ProjectTaskModel.create(task);
@@ -40,16 +35,16 @@ module.exports.addProjectTask = async (req, res, next) => {
 
 module.exports.getProjectTaskByDate = async (req, res, next) => {
   try {
-    const { projectTaskEffortDate } = req.body;
+    const { taskDate } = req.body;
 
-    const startOfDay = new Date(projectTaskEffortDate);
+    const startOfDay = new Date(taskDate);
     startOfDay.setUTCHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(projectTaskEffortDate);
+    const endOfDay = new Date(taskDate);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
     const projectTaskEffortDetails = await ProjectTaskModel.find({
-      projectTaskEffortDate: {
+      date: {
         $gte: startOfDay,
         $lt: endOfDay,
       },
@@ -58,7 +53,7 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
 
     if (!projectTaskEffortDetails) {
       return res.status(404).json({
-        message: `Project Task Efforts Not Found for ${projectTaskEffortDate}
+        message: `Project Task Efforts Not Found for ${date}
         `,
       });
     }
@@ -67,9 +62,9 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
       (projectTask) => {
         return {
           projectID: projectTask.projectID,
-          projectTaskSummary: projectTask.projectTaskSummary,
-          projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
-          projectTaskEffortDate: projectTask.projectTaskEffortDate,
+          summary: projectTask.summary,
+          hoursInvested: projectTask.hoursInvested,
+          date: projectTask.date,
         };
       }
     );
@@ -87,7 +82,7 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
     const projectTaskDetails = await ProjectTaskModel.find({
       $and: [
         {
-          projectTaskEffortDate: {
+          date: {
             $gte: startDate,
             $lte: endDate,
           },
@@ -107,13 +102,13 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
         const projectNamePipeline = [
           {
             $match: {
-              projectCode: projectTask.projectID,
+              code: projectTask.projectID,
             },
           },
           {
             $project: {
               _id: 0,
-              projectName: 1,
+              name: 1,
             },
           },
         ];
@@ -122,10 +117,10 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
           const result = await ProjectModel.aggregate(projectNamePipeline);
 
           return {
-            projectTaskEffortDate: projectTask.projectTaskEffortDate,
-            projectName: result[0]?.projectName,
-            projectTaskSummary: projectTask.projectTaskSummary,
-            projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
+            projectName: result[0]?.name,
+            date: projectTask.date,
+            summary: projectTask.summary,
+            hoursInvested: projectTask.hoursInvested,
           };
         } catch (error) {
           return next(createError(500, "Something went wrong"));
@@ -134,10 +129,7 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
     );
 
     const sortedTaskData = projectTaskDetailsModified?.sort(function (a, b) {
-      return (
-        Date.parse(a.projectTaskEffortDate) -
-        Date.parse(b.projectTaskEffortDate)
-      );
+      return Date.parse(a.date) - Date.parse(b.date);
     });
 
     return res.status(200).json(sortedTaskData);
@@ -157,7 +149,7 @@ module.exports.getAllProjectTaskByProjectAndEmployee = async (
     const projectTaskDetails = await ProjectTaskModel.find({
       $and: [
         {
-          projectTaskEffortDate: {
+          date: {
             $gte: startDate,
             $lte: endDate,
           },
@@ -180,9 +172,9 @@ module.exports.getAllProjectTaskByProjectAndEmployee = async (
     const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
       return {
         projectID: projectTask.projectID,
-        projectTaskSummary: projectTask.projectTaskSummary,
-        projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
-        projectTaskEffortDate: projectTask.projectTaskEffortDate,
+        summary: projectTask.summary,
+        hoursInvested: projectTask.hoursInvested,
+        date: projectTask.date,
       };
     });
 
@@ -199,7 +191,7 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
     const projectTaskDetails = await ProjectTaskModel.find({
       $and: [
         {
-          projectTaskEffortDate: {
+          date: {
             $gte: startDate,
             $lte: endDate,
           },
@@ -226,9 +218,9 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
             employeeID: projectTask.employeeID,
             employeeName: employeeName,
             projectCode: projectTask.projectID,
-            projectTaskSummary: projectTask.projectTaskSummary,
-            projectTaskEffortsTime: projectTask.projectTaskEffortsTime,
-            projectTaskEffortDate: projectTask.projectTaskEffortDate,
+            summary: projectTask.summary,
+            hoursInvested: projectTask.hoursInvested,
+            date: projectTask.date,
           };
         } catch (error) {
           console.error(

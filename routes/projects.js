@@ -44,12 +44,12 @@ projectsRouter.get(
 );
 projectsRouter.post("/addProject", verifyToken, addProject);
 projectsRouter.post(
-  "/addEmployeeToProject/:projectCode",
+  "/addEmployeeToProject/:code",
   verifyToken,
   addEmployeeToProject
 );
 projectsRouter.post(
-  "/removeEmployeeFromProject/:projectCode",
+  "/removeEmployeeFromProject/:code",
   verifyToken,
   removeEmployeeFromProject
 );

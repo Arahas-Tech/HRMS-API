@@ -6,9 +6,16 @@ const createError = require("../utils/errorHandler");
 // @Private access
 const getAllNotifications = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { userID } = req.body;
     const filteredNotifications = await AdminNotificationModel.find({
-      user: id,
+      $and: [
+        {
+          user: userID,
+        },
+        {
+          read: false,
+        },
+      ],
     });
 
     if (!filteredNotifications) {
@@ -21,60 +28,32 @@ const getAllNotifications = async (req, res) => {
   }
 };
 
-// @desc delete a notification
-// @Route DELETE /notifications
-// @Private access
-const deleteNotification = async (req, res) => {
-  const { id } = req.body;
-
-  const deleteNotification = await AdminNotificationModel.findById(id).exec();
-  if (!deleteNotification) {
-    return res
-      .status(400)
-      .json({ message: `Can't find a notification with id: ${id}` });
-  }
-  const result = await deleteNotification.deleteOne();
-  if (!result) {
-    return res
-      .status(400)
-      .json({ message: `Can't delete the notification with id: ${id}` });
-  }
-  return res
-    .status(200)
-    .json({ message: `Notification with id: ${id} deleted with success` });
-};
-
-// @desc delete All notification
-// @Route DELETE /notifications/all
-// @Private access
-const deleteAllNotifications = async (req, res) => {
-  const { id } = req.body;
-
-  const notificationsDeleteMany = await AdminNotificationModel.deleteMany({
-    user: id,
-  });
-  if (!notificationsDeleteMany) {
-    return res
-      .status(400)
-      .json({ message: "Error Deleting all notifications as read" });
-  }
-  return res
-    .status(200)
-    .json({ message: `All notifications for user ${id}marked was deleted` });
-};
-
 // @desc Mark One Notification As Read
 // @Route Patch /notifications/
 // @Access Private
 const markOneNotificationAsRead = async (req, res) => {
-  const { id } = req.body;
+  const { userID, notificationID } = req.body;
 
-  const updateNotification = await AdminNotificationModel.find({ id }).exec();
+  const updateNotification = await AdminNotificationModel.findOneAndUpdate(
+    {
+      $and: [
+        { user: userID },
+        {
+          _id: notificationID,
+        },
+      ],
+    },
+    {
+      $set: {
+        read: true,
+      },
+    }
+  );
+
   if (!updateNotification) {
     return res.status(400).json({ message: "No notifications found" });
   }
-  AdminNotificationModel.read = false;
-  await AdminNotificationModel.save();
+
   res.status(200).json(updateNotification);
 };
 
@@ -82,10 +61,10 @@ const markOneNotificationAsRead = async (req, res) => {
 // @Route Patch /notifications/All
 // @Access Private
 const markAllNotificationsAsRead = async (req, res) => {
-  const { id } = req.body;
+  const { userID } = req.body;
 
   const notificationsUpdateMany = await AdminNotificationModel.updateMany(
-    { user: id },
+    { user: userID },
     { $set: { read: true } }
   );
   if (!notificationsUpdateMany) {
@@ -95,26 +74,24 @@ const markAllNotificationsAsRead = async (req, res) => {
   }
   return res
     .status(200)
-    .json({ message: `All notifications for user ${id}marked as read` });
+    .json({ success: true, message: `All notifications marked as read` });
 };
 
 const sendNotification = async (req, res) => {
-  const { id } = req.body;
+  const { userID } = req.body;
 
   await AdminNotificationModel.create({
-    user: id,
+    user: userID,
     title: "Reminder",
-    type: 1,
     text: "You have pending trainings, complete your trainings!",
     read: false,
   });
 
   return res.status(200).send("Notification sent to employee!");
 };
+
 module.exports = {
   getAllNotifications,
-  deleteNotification,
-  deleteAllNotifications,
   markOneNotificationAsRead,
   markAllNotificationsAsRead,
   sendNotification,

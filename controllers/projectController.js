@@ -315,6 +315,8 @@ module.exports.editProject = async (req, res, next) => {
       }
     );
 
+    clg;
+
     return res.status(200).json(editedProjectDetails);
   } catch (error) {
     return next(createError(500, `Something went wrong! ${error}`));

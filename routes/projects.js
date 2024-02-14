@@ -53,7 +53,7 @@ projectsRouter.post(
   verifyToken,
   removeEmployeeFromProject
 );
-projectsRouter.patch("/editProject/:projectCode", verifyToken, editProject);
+projectsRouter.patch("/editProject/:code", verifyToken, editProject);
 projectsRouter.delete("/deleteProject/:id", verifyToken, deleteProject);
 
 module.exports = projectsRouter;

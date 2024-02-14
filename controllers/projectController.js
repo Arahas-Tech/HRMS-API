@@ -292,7 +292,7 @@ module.exports.editProject = async (req, res, next) => {
       req.body;
 
     const existingProject = await ProjectModel.find({
-      name: updatedProjectName.trim(),
+      name: { $ne: updatedProjectName.trim() },
       code: { $ne: code }, // Exclude the current record being edited
     });
 

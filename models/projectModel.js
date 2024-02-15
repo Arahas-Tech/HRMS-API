@@ -33,18 +33,19 @@ const projectSchema = new mongoose.Schema(
         employeeObjectID: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "employees",
-          unique: true,
+          required: false,
         },
         employeeID: {
           type: String,
-          unique: true,
+          required: false,
         },
         employeeName: {
           type: String,
+          required: false,
         },
         assignedOn: {
           type: Date,
-          required: true,
+          required: false,
         },
       },
     ],

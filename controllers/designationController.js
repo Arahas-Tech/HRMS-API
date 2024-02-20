@@ -29,7 +29,7 @@ module.exports.getAllDesignations = async (_req, res, next) => {
     const getAllDesignation = await DesignationModel.find();
     return res.status(200).json(getAllDesignation);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -59,7 +59,7 @@ module.exports.editDesignation = async (req, res, next) => {
     return res.status(200).json("Successfully updated details");
   } catch (error) {
     console.log(error);
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

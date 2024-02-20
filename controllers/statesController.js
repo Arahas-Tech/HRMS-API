@@ -29,7 +29,7 @@ module.exports.getAllStates = async (_req, res, next) => {
     const getAllState = await StateModel.find();
     return res.status(200).json(getAllState);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -58,7 +58,7 @@ module.exports.editState = async (req, res, next) => {
 
     return res.status(200).json("Successfully updated details");
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

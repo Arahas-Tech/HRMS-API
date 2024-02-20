@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const projectTaskSchema = new mongoose.Schema(
+const taskSchema = new mongoose.Schema(
   {
     employeeID: {
       type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +27,6 @@ const projectTaskSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const ProjectTaskModel = mongoose.model("project-tasks", projectTaskSchema);
+const TaskModel = mongoose.model("project-tasks", taskSchema);
 
-module.exports = ProjectTaskModel;
+module.exports = TaskModel;

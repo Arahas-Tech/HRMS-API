@@ -7,28 +7,24 @@ const {
   getAllProjectTaskByProject,
 } = require("../controllers/projectTaskController");
 const { verifyToken } = require("../utils/verifyToken");
-const projectTaskRouter = express.Router();
+const tasksRouter = express.Router();
 
-projectTaskRouter.post("/addProjectTask", verifyToken, addProjectTask);
-projectTaskRouter.post(
-  "/getProjectTaskByDate",
-  verifyToken,
-  getProjectTaskByDate
-);
-projectTaskRouter.post(
+tasksRouter.post("/addProjectTask", verifyToken, addProjectTask);
+tasksRouter.post("/getProjectTaskByDate", verifyToken, getProjectTaskByDate);
+tasksRouter.post(
   "/getAllProjectTaskByDateRange",
   verifyToken,
   getAllProjectTaskByDateRange
 );
-projectTaskRouter.post(
+tasksRouter.post(
   "/getAllProjectTaskByProjectAndEmployee",
   verifyToken,
   getAllProjectTaskByProjectAndEmployee
 );
-projectTaskRouter.post(
+tasksRouter.post(
   "/getAllProjectTaskByProject",
   verifyToken,
   getAllProjectTaskByProject
 );
 
-module.exports = projectTaskRouter;
+module.exports = tasksRouter;

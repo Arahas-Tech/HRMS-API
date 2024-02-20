@@ -1,4 +1,5 @@
 const express = require("express");
+const swagger = require("./swagger");
 const path = require("path");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -27,7 +28,7 @@ app.use(cookieParser());
 
 // CORS headers setup
 app.use((req, res, next) => {
-  const allowedOrigins = ["http://localhost:5000", "https://arth.arahas.com"];
+  const allowedOrigins = ["http://localhost:3000", "https://arth.arahas.com"];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
@@ -42,7 +43,7 @@ app.use((req, res, next) => {
   );
   next();
 });
-app.get("/", async (req, res) => {
+app.get("/", async (_req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
@@ -51,12 +52,14 @@ const authRoutes = require("./routes/auth");
 const employeesRoutes = require("./routes/employee");
 const trainingRoutes = require("./routes/training");
 const roleRoutes = require("./routes/roles");
-const departmentsRouter = require("./routes/departments");
-const designationsRouter = require("./routes/designations");
-const statesRouter = require("./routes/states");
-const citiesRouter = require("./routes/cities");
+const departmentsRoutes = require("./routes/departments");
+const designationsRoutes = require("./routes/designations");
+const statesRoutes = require("./routes/states");
+const citiesRoutes = require("./routes/cities");
+const accessRoutes = require("./routes/access");
+const modulesRoutes = require("./routes/modules");
 const projectRoutes = require("./routes/projects");
-const projectTaskRoutes = require("./routes/projectTask");
+const taskRoutes = require("./routes/tasks");
 const notificationRoutes = require("./routes/adminNotification");
 
 // Route Middleware
@@ -64,13 +67,17 @@ app.use("/auth", authRoutes);
 app.use("/employees", employeesRoutes);
 app.use("/trainings", trainingRoutes);
 app.use("/roles", roleRoutes);
-app.use("/departments", departmentsRouter);
-app.use("/designations", designationsRouter);
-app.use("/states", statesRouter);
-app.use("/cities", citiesRouter);
+app.use("/departments", departmentsRoutes);
+app.use("/designations", designationsRoutes);
+app.use("/states", statesRoutes);
+app.use("/cities", citiesRoutes);
+app.use("/access", accessRoutes);
+app.use("/modules", modulesRoutes);
 app.use("/projects", projectRoutes);
-app.use("/projectTasks", projectTaskRoutes);
+app.use("/projectTasks", taskRoutes);
 app.use("/notifications", notificationRoutes);
+
+swagger(app);
 
 // Error handling middleware
 app.use((err, _req, res, _next) => {

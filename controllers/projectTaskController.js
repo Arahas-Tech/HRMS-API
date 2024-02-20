@@ -1,6 +1,6 @@
 const EmployeeModel = require("../models/employeeModel");
 const ProjectModel = require("../models/projectModel");
-const ProjectTaskModel = require("../models/projectTaskModel");
+const TaskModel = require("../models/taskModel");
 const createError = require("../utils/errorHandler");
 
 module.exports.addProjectTask = async (req, res, next) => {
@@ -10,7 +10,7 @@ module.exports.addProjectTask = async (req, res, next) => {
     const newProjectTasks = [];
 
     for (const task of tasks) {
-      const existingTaskForDate = await ProjectTaskModel.findOne({
+      const existingTaskForDate = await TaskModel.findOne({
         date: task.date,
         projectID: task.projectID,
         employeeID: task.employeeID,
@@ -20,7 +20,7 @@ module.exports.addProjectTask = async (req, res, next) => {
         return next(createError(400, `Tasks for ${task.date} already exists!`));
       }
 
-      const newTask = await ProjectTaskModel.create(task);
+      const newTask = await TaskModel.create(task);
       newProjectTasks.push(newTask);
     }
 
@@ -43,7 +43,7 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
     const endOfDay = new Date(taskDate);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
-    const projectTaskEffortDetails = await ProjectTaskModel.find({
+    const projectTaskEffortDetails = await TaskModel.find({
       date: {
         $gte: startOfDay,
         $lt: endOfDay,
@@ -79,7 +79,7 @@ module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
   try {
     const { employeeID, startDate, endDate } = req.body;
 
-    const projectTaskDetails = await ProjectTaskModel.find({
+    const projectTaskDetails = await TaskModel.find({
       $and: [
         {
           date: {
@@ -146,7 +146,7 @@ module.exports.getAllProjectTaskByProjectAndEmployee = async (
   try {
     const { projectCode, employeeID, startDate, endDate } = req.body;
 
-    const projectTaskDetails = await ProjectTaskModel.find({
+    const projectTaskDetails = await TaskModel.find({
       $and: [
         {
           date: {
@@ -188,7 +188,7 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
   try {
     const { projectCode, startDate, endDate } = req.body;
 
-    const projectTaskDetails = await ProjectTaskModel.find({
+    const projectTaskDetails = await TaskModel.find({
       $and: [
         {
           date: {

@@ -48,7 +48,7 @@ module.exports.getAllCities = async (_req, res, next) => {
 
     return res.status(200).json(citiesList);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -77,7 +77,7 @@ module.exports.editCity = async (req, res, next) => {
 
     return res.status(200).json("Successfully updated details");
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

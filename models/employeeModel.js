@@ -30,11 +30,24 @@ const EmployeeSchema = new mongoose.Schema(
       unique: true,
       required: true,
     },
-    employeeDesignation: { type: mongoose.Schema.ObjectId, required: true },
-    employeeWorkingState: { type: mongoose.Schema.ObjectId, required: true },
-    employeeWorkingLocation: { type: mongoose.Schema.ObjectId, required: true },
+    employeeDesignation: {
+      type: mongoose.Schema.ObjectId,
+      ref: "designations",
+      required: true,
+    },
+    employeeWorkingState: {
+      type: mongoose.Schema.ObjectId,
+      ref: "states",
+      required: true,
+    },
+    employeeWorkingLocation: {
+      type: mongoose.Schema.ObjectId,
+      ref: "cities",
+      required: true,
+    },
     departmentID: {
       type: mongoose.Schema.ObjectId,
+      ref: "departments",
       required: true,
     },
     roleID: {
@@ -42,6 +55,10 @@ const EmployeeSchema = new mongoose.Schema(
       minlength: 5,
       maxlength: 1024,
       required: true,
+    },
+    accessID: {
+      type: [String],
+      required: false,
     },
     reportingManager: {
       type: String,

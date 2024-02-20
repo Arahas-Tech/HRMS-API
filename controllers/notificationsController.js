@@ -24,7 +24,7 @@ const getAllNotifications = async (req, res) => {
 
     return res.status(200).json(filteredNotifications);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

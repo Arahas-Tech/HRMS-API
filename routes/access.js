@@ -6,14 +6,17 @@ const {
   deactivateAccess,
   activateAccess,
   deleteAccess,
+  fetchPermissionByID,
 } = require("../controllers/accessController");
-const { verifyAdmin } = require("../utils/verifyToken");
+const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 
 accessRouter
   .route("/:accessID?")
   .get(verifyAdmin, fetchAccesses)
   .post(verifyAdmin, createAccess)
   .delete(verifyAdmin, deleteAccess);
+
+accessRouter.route("/fetch/:accessID").get(verifyToken, fetchPermissionByID);
 
 accessRouter.route("/:accessID/activate").patch(verifyAdmin, activateAccess);
 accessRouter

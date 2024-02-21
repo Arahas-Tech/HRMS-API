@@ -3,6 +3,7 @@ const {
   getAllEmployees,
   getAllManagers,
   getAllEmployeesForManager,
+  fetchEmployeeUnderRM,
   getEmployeeByID,
   deleteEmployee,
   addEmployee,
@@ -28,7 +29,8 @@ employeesRouter.get(
   verifyAdmin,
   getEmployeeByID
 );
-employeesRouter.post("/addEmployee", addEmployee);
+employeesRouter.get("/fetchEmployees?:rm", verifyToken, fetchEmployeeUnderRM);
+employeesRouter.post("/addEmployee", verifyAdmin, addEmployee);
 employeesRouter.post(
   "/bulkAdd",
   upload.single("file"),

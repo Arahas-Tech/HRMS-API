@@ -198,6 +198,35 @@ module.exports.getAllEmployeesForManager = async (_req, res, next) => {
   }
 };
 
+module.exports.fetchEmployeeUnderRM = async (req, res, next) => {
+  const reportingManager = req.query.rm;
+
+  try {
+    const allEmployees = await EmployeeModel.find({
+      $and: [
+        {
+          reportingManager: reportingManager,
+        },
+        {
+          isActive: true,
+        },
+      ],
+    });
+
+    const employeeData = allEmployees.map((employee) => {
+      return {
+        employeeObjectID: employee._id,
+        employeeID: employee.employeeID,
+        employeeName: employee.employeeName,
+      };
+    });
+
+    return res.status(200).json(employeeData);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
 module.exports.getAllManagers = async (_req, res, next) => {
   try {
     const allManagers = await EmployeeModel.find({

@@ -119,6 +119,7 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
           employeeID: 1,
           employeeName: 1,
           employeeEmail: 1,
+          accessID: 1,
           employeeRoleID: "$roleID",
           employeeRoleName: "$role.roleName",
           employeeDepartment: "$department.departmentName",

@@ -41,8 +41,6 @@ module.exports.login = async (req, res, next) => {
       }
     );
 
-    // Update the currentEmployee's accessToken field
-    currentEmployee.accessToken = token;
     // Save the updated employee
     await currentEmployee.save();
 
@@ -54,15 +52,15 @@ module.exports.login = async (req, res, next) => {
   }
 };
 
-module.exports.getUserDetailsFromToken = async (req, res, next) => {
+module.exports.getUserDetailsByID = async (req, res, next) => {
   try {
-    const { accessToken } = req.body;
+    const { employeeID } = req.body;
 
-    if (!accessToken) {
+    if (!employeeID) {
       return next(createError(400, "Access Token is missing"));
     }
 
-    const currentUser = await EmployeeModel.findOne({ accessToken });
+    const currentUser = await EmployeeModel.findOne({ employeeID });
 
     if (!currentUser) {
       return next(createError(404, "Incorrect Token or User not Found!"));
@@ -70,7 +68,7 @@ module.exports.getUserDetailsFromToken = async (req, res, next) => {
 
     const aggregationPipeline = [
       {
-        $match: { accessToken },
+        $match: { employeeID },
       },
       {
         $lookup: {

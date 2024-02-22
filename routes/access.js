@@ -7,7 +7,7 @@ const {
   activateAccess,
   deleteAccess,
   fetchPermissionByID,
-} = require("../controllers/accessController");
+} = require("../controllers/access.controller");
 const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 
 accessRouter

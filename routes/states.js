@@ -3,15 +3,17 @@ const statesRouter = express.Router();
 
 const { verifyAdmin } = require("../utils/verifyToken");
 const {
-  addState,
-  getAllStates,
+  createState,
+  fetchStates,
   editState,
   deleteState,
-} = require("../controllers/statesController");
+} = require("../controllers/states.controller");
 
-statesRouter.get("/getAllStates", verifyAdmin, getAllStates);
-statesRouter.post("/addState", verifyAdmin, addState);
-statesRouter.patch("/editState", verifyAdmin, editState);
-statesRouter.delete("/deleteState/:id", verifyAdmin, deleteState);
+statesRouter
+  .route("/?:id?")
+  .get(verifyAdmin, fetchStates)
+  .post(verifyAdmin, createState)
+  .patch(verifyAdmin, editState)
+  .delete(verifyAdmin, deleteState);
 
 module.exports = statesRouter;

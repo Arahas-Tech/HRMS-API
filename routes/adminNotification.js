@@ -5,7 +5,7 @@ const {
   markOneNotificationAsRead,
   markAllNotificationsAsRead,
   sendNotification,
-} = require("../controllers/notificationsController");
+} = require("../controllers/notifications.controller");
 const { verifyAdmin } = require("../utils/verifyToken");
 
 notificationRouter

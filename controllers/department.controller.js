@@ -1,10 +1,9 @@
 const DepartmentModel = require("../models/departmentModel");
 const createError = require("../utils/errorHandler");
 
-module.exports.addDepartment = async (req, res, next) => {
+module.exports.createDepartment = async (req, res, next) => {
   try {
     let data = req.body;
-    const newDepartment = new DepartmentModel(data);
 
     const existingDepartment = await DepartmentModel.findOne({
       $or: [
@@ -17,7 +16,9 @@ module.exports.addDepartment = async (req, res, next) => {
       return next(createError(400, "Department already exists!"));
     }
 
+    const newDepartment = new DepartmentModel(data);
     const savedDepartmentDetails = await newDepartment.save();
+
     res.status(200).json({
       message: "Department added successfully!",
       data: savedDepartmentDetails,
@@ -27,10 +28,10 @@ module.exports.addDepartment = async (req, res, next) => {
   }
 };
 
-module.exports.getAllDepartments = async (_req, res, next) => {
+module.exports.fetchDepartments = async (_req, res, next) => {
   try {
-    const getAllDepartment = await DepartmentModel.find();
-    return res.status(200).json(getAllDepartment);
+    const allDepartments = await DepartmentModel.find();
+    return res.status(200).json(allDepartments);
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
   }

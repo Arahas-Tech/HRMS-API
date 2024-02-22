@@ -1,7 +1,7 @@
 const StateModel = require("../models/stateModel");
 const createError = require("../utils/errorHandler");
 
-module.exports.addState = async (req, res, next) => {
+module.exports.createState = async (req, res, next) => {
   try {
     let data = req.body;
     const newState = new StateModel(data);
@@ -24,7 +24,7 @@ module.exports.addState = async (req, res, next) => {
   }
 };
 
-module.exports.getAllStates = async (_req, res, next) => {
+module.exports.fetchStates = async (_req, res, next) => {
   try {
     const getAllState = await StateModel.find();
     return res.status(200).json(getAllState);

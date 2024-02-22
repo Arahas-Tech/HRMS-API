@@ -3,7 +3,7 @@ const ProjectModel = require("../models/projectModel");
 const TaskModel = require("../models/taskModel");
 const createError = require("../utils/errorHandler");
 
-module.exports.addProjectTask = async (req, res, next) => {
+module.exports.createTask = async (req, res, next) => {
   try {
     let { tasks } = req.body;
 
@@ -33,7 +33,7 @@ module.exports.addProjectTask = async (req, res, next) => {
   }
 };
 
-module.exports.getProjectTaskByDate = async (req, res, next) => {
+module.exports.fetchTaskByDate = async (req, res, next) => {
   try {
     const { taskDate } = req.body;
 
@@ -75,7 +75,7 @@ module.exports.getProjectTaskByDate = async (req, res, next) => {
   }
 };
 
-module.exports.getAllProjectTaskByDateRange = async (req, res, next) => {
+module.exports.fetchTaskByDates = async (req, res, next) => {
   try {
     const { employeeID, startDate, endDate } = req.body;
 

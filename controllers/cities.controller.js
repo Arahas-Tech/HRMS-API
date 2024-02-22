@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const CityModel = require("../models/cityModel");
 const createError = require("../utils/errorHandler");
 
-module.exports.addCity = async (req, res, next) => {
+module.exports.createCity = async (req, res, next) => {
   try {
     const data = req.body;
 
@@ -23,7 +23,7 @@ module.exports.addCity = async (req, res, next) => {
   }
 };
 
-module.exports.getAllCities = async (_req, res, next) => {
+module.exports.fetchCities = async (_req, res, next) => {
   try {
     const citiesList = await CityModel.aggregate([
       {
@@ -95,7 +95,7 @@ module.exports.deleteCity = async (req, res, next) => {
   }
 };
 
-module.exports.fetchCitiesByState = async (req, res, next) => {
+module.exports.fetchCitiesForState = async (req, res, next) => {
   try {
     const stateID = req.query.id;
 

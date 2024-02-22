@@ -3,19 +3,17 @@ const designationRouter = express.Router();
 
 const { verifyAdmin } = require("../utils/verifyToken");
 const {
-  addDesignation,
-  getAllDesignations,
+  fetchDesignations,
+  createDesignation,
   editDesignation,
   deleteDesignation,
-} = require("../controllers/designationController");
+} = require("../controllers/designation.controller");
 
-designationRouter.get("/getAllDesignations", verifyAdmin, getAllDesignations);
-designationRouter.post("/addDesignation", addDesignation);
-designationRouter.patch("/editDesignation", verifyAdmin, editDesignation);
-designationRouter.delete(
-  "/deleteDesignation/:id",
-  verifyAdmin,
-  deleteDesignation
-);
+designationRouter
+  .route("/?:id?")
+  .get(verifyAdmin, fetchDesignations)
+  .post(verifyAdmin, createDesignation)
+  .patch(verifyAdmin, editDesignation)
+  .delete(verifyAdmin, deleteDesignation);
 
 module.exports = designationRouter;

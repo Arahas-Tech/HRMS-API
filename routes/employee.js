@@ -10,7 +10,7 @@ const {
   bulkAddEmployees,
   updateTraining,
   editEmployee,
-} = require("../controllers/employeeController");
+} = require("../controllers/employee.controller");
 const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 const multer = require("multer");
 const employeesRouter = express.Router();

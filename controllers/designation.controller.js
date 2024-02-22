@@ -1,10 +1,9 @@
 const DesignationModel = require("../models/designationModel");
 const createError = require("../utils/errorHandler");
 
-module.exports.addDesignation = async (req, res, next) => {
+module.exports.createDesignation = async (req, res, next) => {
   try {
     let data = req.body;
-    const newDesignation = new DesignationModel(data);
 
     const existingDesignation = await DesignationModel.findOne({
       designationName: data.designationName,
@@ -14,7 +13,9 @@ module.exports.addDesignation = async (req, res, next) => {
       return next(createError(400, "Designation already exists!"));
     }
 
+    const newDesignation = new DesignationModel(data);
     const savedDesignationDetails = await newDesignation.save();
+
     res.status(200).json({
       message: "Designation added successfully!",
       data: savedDesignationDetails,
@@ -24,10 +25,10 @@ module.exports.addDesignation = async (req, res, next) => {
   }
 };
 
-module.exports.getAllDesignations = async (_req, res, next) => {
+module.exports.fetchDesignations = async (_req, res, next) => {
   try {
-    const getAllDesignation = await DesignationModel.find();
-    return res.status(200).json(getAllDesignation);
+    const designations = await DesignationModel.find();
+    return res.status(200).json(designations);
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
   }

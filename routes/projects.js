@@ -12,10 +12,10 @@ const {
   getProjectDetailsByManager,
   getProjectDetailByProjectCodeAndManager,
   getAllProjectsDetailsByManager,
-} = require("../controllers/projectController");
+} = require("../controllers/project.controller");
 const projectsRouter = express.Router();
 
-const { verifyToken, verifyAdmin } = require("../utils/verifyToken");
+const { verifyToken } = require("../utils/verifyToken");
 
 projectsRouter.get("/getAllProjects", verifyToken, getAllProjects);
 projectsRouter.get(

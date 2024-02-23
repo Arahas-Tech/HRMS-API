@@ -1,35 +1,55 @@
 const EmployeeModel = require("../models/employeeModel");
 const ProjectModel = require("../models/projectModel");
 const TaskModel = require("../models/taskModel");
+const { addTimes } = require("../utils/AddTwoStringHours");
 const createError = require("../utils/errorHandler");
 
 module.exports.createTask = async (req, res, next) => {
   try {
-    let { tasks } = req.body;
+    const task = req.body;
 
-    const newProjectTasks = [];
-
-    for (const task of tasks) {
-      const existingTaskForDate = await TaskModel.findOne({
-        date: task.date,
-        projectID: task.projectID,
-        employeeID: task.employeeID,
-      });
-
-      if (existingTaskForDate) {
-        return next(createError(400, `Tasks for ${task.date} already exists!`));
-      }
-
-      const newTask = await TaskModel.create(task);
-      newProjectTasks.push(newTask);
+    if (!task.date || !task.projectID || !task.employeeID || !task.summary) {
+      return next(createError(400, "Missing required fields."));
     }
 
-    return res.status(200).json({
-      message: "Project Task Added Successfully!",
-      data: newProjectTasks,
+    // ! Check if projectID and employeeID exist
+    const existingProject = await ProjectModel.findOne({
+      code: task.projectID,
     });
+    if (!existingProject) {
+      return next(createError(404, "Project not found."));
+    }
+
+    const existingEmployee = await EmployeeModel.findById(task.employeeID);
+    if (!existingEmployee) {
+      return next(createError(404, "Employee not found."));
+    }
+
+    // Check if task already exists for the same date, project, and employee
+    const existingTaskForDate = await TaskModel.findOne({
+      $and: [
+        { date: task.date },
+        { projectID: task.projectID },
+        { employeeID: task.employeeID },
+      ],
+    });
+
+    if (existingTaskForDate) {
+      return next(
+        createError(
+          400,
+          `Task for the same project already exists on ${new Date(
+            task.date
+          ).toLocaleDateString("en-IN")}`
+        )
+      );
+    }
+
+    await TaskModel.create(task);
+
+    return res.status(200).json("Project Task Added Successfully!");
   } catch (error) {
-    return next(createError(error));
+    return next(createError(500, "Something went wrong"));
   }
 };
 
@@ -71,6 +91,7 @@ module.exports.fetchTaskByDate = async (req, res, next) => {
 
     return res.status(200).json(projectTaskEffortDetailsModified);
   } catch (error) {
+    console.log(error);
     return next(createError(500, "Something went wrong"));
   }
 };
@@ -79,7 +100,7 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
   try {
     const { employeeID, startDate, endDate } = req.body;
 
-    const projectTaskDetails = await TaskModel.find({
+    const taskDetails = await TaskModel.find({
       $and: [
         {
           date: {
@@ -91,14 +112,12 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
       ],
     });
 
-    if (!projectTaskDetails) {
-      return next(
-        createError(404, `Project Tasks not found for ${employeeID}`)
-      );
+    if (!taskDetails) {
+      return next(createError(404, `Tasks not found for ${employeeID}`));
     }
 
-    const projectTaskDetailsModified = await Promise.all(
-      projectTaskDetails.map(async (projectTask) => {
+    const taskDetailsModified = await Promise.all(
+      taskDetails.map(async (projectTask) => {
         const projectNamePipeline = [
           {
             $match: {
@@ -117,6 +136,7 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
           const result = await ProjectModel.aggregate(projectNamePipeline);
 
           return {
+            code: projectTask.projectID,
             projectName: result[0]?.name,
             date: projectTask.date,
             summary: projectTask.summary,
@@ -128,7 +148,7 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
       })
     );
 
-    const sortedTaskData = projectTaskDetailsModified?.sort(function (a, b) {
+    const sortedTaskData = taskDetailsModified?.sort(function (a, b) {
       return Date.parse(a.date) - Date.parse(b.date);
     });
 
@@ -138,24 +158,14 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
   }
 };
 
-module.exports.getAllProjectTaskByProjectAndEmployee = async (
-  req,
-  res,
-  next
-) => {
+module.exports.fetchProjectHoursByDate = async (req, res, next) => {
   try {
-    const { projectCode, employeeID, startDate, endDate } = req.body;
+    const { employeeID, date } = req.body;
 
-    const projectTaskDetails = await TaskModel.find({
+    const taskDetails = await TaskModel.find({
       $and: [
         {
-          date: {
-            $gte: startDate,
-            $lte: endDate,
-          },
-        },
-        {
-          projectID: projectCode,
+          date: date,
         },
         {
           employeeID: employeeID,
@@ -163,32 +173,35 @@ module.exports.getAllProjectTaskByProjectAndEmployee = async (
       ],
     });
 
-    if (!projectTaskDetails || projectTaskDetails.length === 0) {
+    if (!taskDetails || taskDetails.length === 0) {
       return res.status(404).json({
-        message: `Project Tasks not found for employeeID ${employeeID}`,
+        message: `Tasks not found`,
       });
     }
 
-    const projectTaskDetailsModified = projectTaskDetails.map((projectTask) => {
-      return {
-        projectID: projectTask.projectID,
-        summary: projectTask.summary,
-        hoursInvested: projectTask.hoursInvested,
-        date: projectTask.date,
-      };
-    });
+    const totalHours = taskDetails.reduce(
+      (acc, curr) => {
+        return {
+          totalHoursInvested: addTimes(
+            curr.hoursInvested,
+            acc.totalHoursInvested
+          ),
+        };
+      },
+      { totalHoursInvested: "00:00" }
+    );
 
-    return res.status(200).json(projectTaskDetailsModified);
+    return res.status(200).json(totalHours);
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }
 };
 
-module.exports.getAllProjectTaskByProject = async (req, res, next) => {
+module.exports.fetchTaskByProject = async (req, res, next) => {
   try {
     const { projectCode, startDate, endDate } = req.body;
 
-    const projectTaskDetails = await TaskModel.find({
+    const taskDetails = await TaskModel.find({
       $and: [
         {
           date: {
@@ -202,12 +215,12 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
       ],
     });
 
-    if (!projectTaskDetails || projectTaskDetails.length === 0) {
-      return res.status(404).json(`Project Tasks not found ${projectCode}`);
+    if (!taskDetails || taskDetails.length === 0) {
+      return res.status(404).json(`Tasks not found ${projectCode}`);
     }
 
-    const projectTaskDetailsModified = await Promise.all(
-      projectTaskDetails.map(async (projectTask) => {
+    const taskDetailsModified = await Promise.all(
+      taskDetails.map(async (projectTask) => {
         const { employeeID } = projectTask;
 
         try {
@@ -223,16 +236,12 @@ module.exports.getAllProjectTaskByProject = async (req, res, next) => {
             date: projectTask.date,
           };
         } catch (error) {
-          console.error(
-            `Error fetching employee details for ID ${employeeID}:`,
-            error
-          );
           return projectTask;
         }
       })
     );
 
-    return res.status(200).json(projectTaskDetailsModified);
+    return res.status(200).json(taskDetailsModified);
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }

@@ -3,8 +3,8 @@ const {
   createTask,
   fetchTaskByDate,
   fetchTaskByDates,
-  getAllProjectTaskByProjectAndEmployee,
-  getAllProjectTaskByProject,
+  fetchTaskByProject,
+  fetchProjectHoursByDate,
 } = require("../controllers/task.controller");
 const { verifyToken } = require("../utils/verifyToken");
 const tasksRouter = express.Router();
@@ -12,15 +12,11 @@ const tasksRouter = express.Router();
 tasksRouter.post("/createTask", verifyToken, createTask);
 tasksRouter.post("/fetchTaskByDate", verifyToken, fetchTaskByDate);
 tasksRouter.post("/fetchTaskByDates", verifyToken, fetchTaskByDates);
+tasksRouter.post("/fetchTaskByProject", verifyToken, fetchTaskByProject);
 tasksRouter.post(
-  "/getAllProjectTaskByProjectAndEmployee",
+  "/fetchProjectHoursByDate",
   verifyToken,
-  getAllProjectTaskByProjectAndEmployee
-);
-tasksRouter.post(
-  "/getAllProjectTaskByProject",
-  verifyToken,
-  getAllProjectTaskByProject
+  fetchProjectHoursByDate
 );
 
 module.exports = tasksRouter;

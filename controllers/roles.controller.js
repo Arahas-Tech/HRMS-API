@@ -1,7 +1,7 @@
 const RolesModel = require("../models/rolesModel");
 const createError = require("../utils/errorHandler");
 
-module.exports.addRole = async (req, res, next) => {
+module.exports.createRole = async (req, res, next) => {
   try {
     let data = req.body;
     const newRole = new RolesModel(data);
@@ -28,12 +28,12 @@ module.exports.addRole = async (req, res, next) => {
   }
 };
 
-module.exports.getAllRoles = async (_req, res, next) => {
+module.exports.fetchRoles = async (_req, res, next) => {
   try {
-    const getAllRoles = await RolesModel.find();
-    return res.status(200).json(getAllRoles);
+    const allRoles = await RolesModel.find();
+    return res.status(200).json(allRoles);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -52,7 +52,7 @@ module.exports.editRole = async (req, res, next) => {
 
     return res.status(200).json("Successfully updated details");
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

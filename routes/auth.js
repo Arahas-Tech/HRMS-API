@@ -2,10 +2,10 @@ const express = require("express");
 const {
   login,
   logout,
-  getUserDetailsFromToken,
+  getUserDetailsByID,
   forgotPassword,
   changePassword,
-} = require("../controllers/authController");
+} = require("../controllers/auth.controller");
 const { verifyToken } = require("../utils/verifyToken");
 const authRouter = express.Router();
 
@@ -14,7 +14,7 @@ authRouter.post("/login-user", login);
 authRouter.get("/logout", verifyToken, logout);
 
 //User Details
-authRouter.post("/getUserDetails", verifyToken, getUserDetailsFromToken);
+authRouter.post("/getUserDetails", verifyToken, getUserDetailsByID);
 
 // Password Forgot and Change
 authRouter.post("/forgotPassword", forgotPassword);

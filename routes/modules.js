@@ -6,7 +6,7 @@ const {
   deactivateModule,
   activateModule,
   deleteModule,
-} = require("../controllers/modulesController");
+} = require("../controllers/modules.controller");
 const { verifyAdmin } = require("../utils/verifyToken");
 
 accessRouter

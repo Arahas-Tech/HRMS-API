@@ -162,6 +162,34 @@ module.exports.getAllProjectsByEmployee = async (req, res, next) => {
   }
 };
 
+module.exports.fetchRMProjects = async (req, res, next) => {
+  try {
+    const employeeID = req.query.employeeID;
+
+    const allProjectsOfEmployee = await ProjectModel.find({
+      "assignedDetails.employeeID": employeeID,
+    });
+
+    if (!allProjectsOfEmployee) {
+      return next(createError(404, "No projects found"));
+    }
+
+    const projectModifiedDetails = allProjectsOfEmployee.map((data) => {
+      return {
+        code: data.code,
+        name: data.name,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        assignedDetails: data.assignedDetails,
+      };
+    });
+
+    return res.status(200).json(projectModifiedDetails);
+  } catch (error) {
+    return next(createError(500, `Something went wrong! ${error}`));
+  }
+};
+
 module.exports.getProjectDetailByProjectCode = async (req, res, next) => {
   try {
     const code = req.params.id;

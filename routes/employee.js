@@ -3,13 +3,14 @@ const {
   getAllEmployees,
   getAllManagers,
   getAllEmployeesForManager,
+  fetchEmployeeUnderRM,
   getEmployeeByID,
   deleteEmployee,
   addEmployee,
   bulkAddEmployees,
   updateTraining,
   editEmployee,
-} = require("../controllers/employeeController");
+} = require("../controllers/employee.controller");
 const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 const multer = require("multer");
 const employeesRouter = express.Router();
@@ -28,7 +29,8 @@ employeesRouter.get(
   verifyAdmin,
   getEmployeeByID
 );
-employeesRouter.post("/addEmployee", addEmployee);
+employeesRouter.get("/fetchEmployees?:rm", verifyToken, fetchEmployeeUnderRM);
+employeesRouter.post("/addEmployee", verifyAdmin, addEmployee);
 employeesRouter.post(
   "/bulkAdd",
   upload.single("file"),

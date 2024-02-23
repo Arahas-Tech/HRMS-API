@@ -3,19 +3,17 @@ const departmentsRouter = express.Router();
 
 const { verifyAdmin } = require("../utils/verifyToken");
 const {
-  addDepartment,
-  getAllDepartments,
+  createDepartment,
+  fetchDepartments,
   editDepartment,
   deleteDepartment,
-} = require("../controllers/departmentController");
+} = require("../controllers/department.controller");
 
-departmentsRouter.get("/getAllDepartments", verifyAdmin, getAllDepartments);
-departmentsRouter.post("/addDepartment", verifyAdmin, addDepartment);
-departmentsRouter.patch("/editDepartment", verifyAdmin, editDepartment);
-departmentsRouter.delete(
-  "/deleteDepartment/:id",
-  verifyAdmin,
-  deleteDepartment
-);
+departmentsRouter
+  .route("/?:id?")
+  .get(verifyAdmin, fetchDepartments)
+  .post(verifyAdmin, createDepartment)
+  .patch(verifyAdmin, editDepartment)
+  .delete(verifyAdmin, deleteDepartment);
 
 module.exports = departmentsRouter;

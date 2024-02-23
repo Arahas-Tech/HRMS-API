@@ -1,17 +1,19 @@
 const express = require("express");
 const {
-  getAllRoles,
-  addRole,
-  deleteRole,
+  fetchRoles,
+  createRole,
   editRole,
-} = require("../controllers/rolesController");
+  deleteRole,
+} = require("../controllers/roles.controller");
 const rolesRouter = express.Router();
 
 const { verifyAdmin } = require("../utils/verifyToken");
 
-rolesRouter.get("/getAllRoles", verifyAdmin, getAllRoles);
-rolesRouter.post("/addRole", verifyAdmin, addRole);
-rolesRouter.patch("/editRole", verifyAdmin, editRole);
-rolesRouter.delete("/deleteRoles/:id", verifyAdmin, deleteRole);
+rolesRouter
+  .route("/?:id?")
+  .get(verifyAdmin, fetchRoles)
+  .post(verifyAdmin, createRole)
+  .patch(verifyAdmin, editRole)
+  .delete(verifyAdmin, deleteRole);
 
 module.exports = rolesRouter;

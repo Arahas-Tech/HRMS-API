@@ -3,17 +3,19 @@ const citiesRouter = express.Router();
 
 const { verifyAdmin } = require("../utils/verifyToken");
 const {
-  addCity,
-  getAllCities,
-  fetchCitiesByState,
+  createCity,
+  fetchCities,
+  fetchCitiesForState,
   editCity,
   deleteCity,
-} = require("../controllers/citiesController");
+} = require("../controllers/cities.controller");
 
-citiesRouter.get("/getAllCities", verifyAdmin, getAllCities);
-citiesRouter.get("/fetchCitiesByState?:id", verifyAdmin, fetchCitiesByState);
-citiesRouter.post("/addCity", verifyAdmin, addCity);
-citiesRouter.patch("/editCity", verifyAdmin, editCity);
-citiesRouter.delete("/deleteCity/:id", verifyAdmin, deleteCity);
+citiesRouter
+  .route("/?:id?")
+  .get(verifyAdmin, fetchCities)
+  .get(verifyAdmin, fetchCitiesForState)
+  .post(verifyAdmin, createCity)
+  .patch(verifyAdmin, editCity)
+  .delete(verifyAdmin, deleteCity);
 
 module.exports = citiesRouter;

@@ -6,7 +6,7 @@ const {
   getTrainingsDetailByID,
   getAllTrainingsCount,
   editTraining,
-} = require("../controllers/trainingsController");
+} = require("../controllers/trainings.controller");
 const trainingsRouter = express.Router();
 
 const { verifyToken, verifyAdmin } = require("../utils/verifyToken");

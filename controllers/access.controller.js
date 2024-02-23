@@ -20,7 +20,6 @@ module.exports.createAccess = async (req, res, next) => {
       data: savedAccessDetails,
     });
   } catch (error) {
-    console.log(error);
     next(createError(error));
   }
 };
@@ -29,6 +28,20 @@ module.exports.fetchAccesses = async (_req, res, next) => {
   try {
     const allAccesses = await AccessModel.find();
     return res.status(200).json(allAccesses);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchPermissionByID = async (req, res, next) => {
+  try {
+    const { accessID } = req.params;
+
+    const currentAccess = await AccessModel.findOne({
+      accessID,
+    });
+
+    return res.status(200).json(currentAccess.accessibleModules);
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
   }

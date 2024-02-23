@@ -74,7 +74,7 @@ app.use("/cities", citiesRoutes);
 app.use("/access", accessRoutes);
 app.use("/modules", modulesRoutes);
 app.use("/projects", projectRoutes);
-app.use("/projectTasks", taskRoutes);
+app.use("/tasks", taskRoutes);
 app.use("/notifications", notificationRoutes);
 
 swagger(app);

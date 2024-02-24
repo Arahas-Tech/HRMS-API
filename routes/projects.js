@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getAllProjects,
+  fetchProjectsCount,
   getAllProjectsByEmployee,
   fetchRMProjects,
   addProject,
@@ -15,9 +16,10 @@ const {
 } = require("../controllers/project.controller");
 const projectsRouter = express.Router();
 
-const { verifyToken } = require("../utils/verifyToken");
+const { verifyToken, verifyAdmin } = require("../utils/verifyToken");
 
 projectsRouter.get("/getAllProjects", verifyToken, getAllProjects);
+projectsRouter.get("/count", verifyAdmin, fetchProjectsCount);
 projectsRouter.get(
   "/getAllProjectsByEmployee?:employeeID",
   verifyToken,

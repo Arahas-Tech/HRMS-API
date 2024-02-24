@@ -131,7 +131,17 @@ module.exports.getAllProjects = async (_req, res, next) => {
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchProjectsCount = async (_req, res, next) => {
+  try {
+    const projectsCount = await ProjectModel.countDocuments();
+
+    return res.status(200).json(projectsCount);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -158,7 +168,7 @@ module.exports.getAllProjectsByEmployee = async (req, res, next) => {
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -186,7 +196,7 @@ module.exports.fetchRMProjects = async (req, res, next) => {
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -213,7 +223,7 @@ module.exports.getProjectDetailByProjectCode = async (req, res, next) => {
       projectManager: projectManager.employeeName,
     });
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -238,7 +248,7 @@ module.exports.getProjectDetailsByManager = async (req, res, next) => {
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -250,7 +260,7 @@ module.exports.getAllProjectsDetailsByManager = async (req, res, next) => {
     });
     return res.status(200).json(getAllProjects);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -309,7 +319,7 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
       assignedDetails: assignedDetailsWithNames,
     });
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -347,7 +357,7 @@ module.exports.editProject = async (req, res, next) => {
 
     return res.status(200).json(editedProjectDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

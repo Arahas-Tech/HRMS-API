@@ -25,5 +25,5 @@ module.exports.addTimes = (startTime, endTime) => {
     minutes -= 60 * h;
   }
 
-  return "0" + hours + ":" + ("0" + minutes).slice(-2);
+  return Number("0" + hours) + ":" + ("0" + minutes).slice(-2);
 };

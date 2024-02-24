@@ -11,11 +11,12 @@ const {
 } = require("../controllers/cities.controller");
 
 citiesRouter
-  .route("/?:id?")
+  .route("/:id")
   .get(verifyAdmin, fetchCities)
-  .get(verifyAdmin, fetchCitiesForState)
   .post(verifyAdmin, createCity)
   .patch(verifyAdmin, editCity)
   .delete(verifyAdmin, deleteCity);
+
+citiesRouter.route("/state/:id").get(verifyAdmin, fetchCitiesForState);
 
 module.exports = citiesRouter;

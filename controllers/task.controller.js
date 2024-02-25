@@ -74,49 +74,63 @@ module.exports.createTask = async (req, res, next) => {
   }
 };
 
-module.exports.fetchTaskByDate = async (req, res, next) => {
+module.exports.fetchTasksByDate = async (req, res, next) => {
   try {
     const { taskDate } = req.body;
 
-    const startOfDay = new Date(taskDate);
-    startOfDay.setUTCHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(taskDate);
-    endOfDay.setUTCHours(23, 59, 59, 999);
-
-    const projectTaskEffortDetails = await TaskModel.find({
-      date: {
-        $gte: startOfDay,
-        $lt: endOfDay,
-      },
+    const taskDetails = await TaskModel.find({
+      date: taskDate,
       employeeID: req.body.employeeID,
     });
 
-    if (!projectTaskEffortDetails) {
-      return res.status(404).json({
-        message: `Project Task Efforts Not Found for ${convertDate(date)}
-        `,
-      });
+    if (!taskDetails) {
+      return res.status(404).json("Tasks not found for selected date");
     }
 
-    const projectTaskEffortDetailsModified = projectTaskEffortDetails.map(
-      (projectTask) => {
-        return {
-          projectID: projectTask.projectID,
-          summary: projectTask.summary,
-          hoursInvested: projectTask.hoursInvested,
-          date: convertDate(projectTask.date),
-        };
-      }
+    const taskDetailsModified = await Promise.all(
+      taskDetails.map(async (projectTask) => {
+        const projectNamePipeline = [
+          {
+            $match: {
+              code: projectTask.projectID,
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              name: 1,
+            },
+          },
+        ];
+
+        try {
+          const result = await ProjectModel.aggregate(projectNamePipeline);
+
+          return {
+            projectCode: projectTask.projectID,
+            projectName: result[0]?.name,
+            date: convertDate(projectTask.date),
+            summary: projectTask.summary,
+            hoursInvested: projectTask.hoursInvested,
+          };
+        } catch (error) {
+          return next(createError(500, "Something went wrong"));
+        }
+      })
     );
 
-    return res.status(200).json(projectTaskEffortDetailsModified);
+    const sortedTaskData = taskDetailsModified?.sort(function (a, b) {
+      return Date.parse(a.date) - Date.parse(b.date);
+    });
+
+    return res.status(200).json(sortedTaskData);
   } catch (error) {
+    console.log(error);
     return next(createError(500, "Something went wrong"));
   }
 };
 
-module.exports.fetchTaskByDates = async (req, res, next) => {
+module.exports.fetchTasksByDates = async (req, res, next) => {
   try {
     const { employeeID, startDate, endDate } = req.body;
 

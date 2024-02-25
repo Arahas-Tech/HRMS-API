@@ -60,6 +60,7 @@ const accessRoutes = require("./routes/access");
 const modulesRoutes = require("./routes/modules");
 const projectRoutes = require("./routes/projects");
 const taskRoutes = require("./routes/tasks");
+const editTaskRoutes = require("./routes/editTask.routes");
 const notificationRoutes = require("./routes/adminNotification");
 
 // Route Middleware
@@ -75,6 +76,7 @@ app.use("/access", accessRoutes);
 app.use("/modules", modulesRoutes);
 app.use("/projects", projectRoutes);
 app.use("/tasks", taskRoutes);
+app.use("/editTasks", editTaskRoutes);
 app.use("/notifications", notificationRoutes);
 
 swagger(app);
@@ -91,5 +93,5 @@ connectToDB();
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`ARTH is running on port ${PORT}`);
 });

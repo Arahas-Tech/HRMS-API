@@ -256,10 +256,21 @@ module.exports.getProjectDetailsByManager = async (req, res, next) => {
 module.exports.getAllProjectsDetailsByManager = async (req, res, next) => {
   try {
     const managerID = req.params.managerID;
-    const getAllProjects = await ProjectModel.find({
+    const allProjects = await ProjectModel.find({
       projectManager: managerID,
     });
-    return res.status(200).json(getAllProjects);
+
+    const modifiedDetails = allProjects.map((project) => ({
+      code: project.code,
+      name: project.name,
+      projectManager: project.projectManager,
+      startDate: convertDate(project.startDate),
+      endDate: convertDate(project.endDate),
+      isCompleted: project.isCompleted,
+      assignedDetails: project.assignedDetails,
+    }));
+
+    return res.status(200).json(modifiedDetails);
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
   }
@@ -354,7 +365,7 @@ module.exports.editProject = async (req, res, next) => {
       }
     );
 
-    return res.status(200).json(editedProjectDetails);
+    return res.status(200).json("Updated project details successfully");
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
   }

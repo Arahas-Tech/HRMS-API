@@ -6,6 +6,8 @@ const { modifyTaskDetails } = require("../utils/modifyProjectTask");
 const createError = require("../utils/errorHandler");
 const { convertToDecimalHours } = require("../utils/convertToDecimalHours");
 const { getStartEndDate } = require("../utils/getStartEndDate");
+const convertDate = require("../utils/DateConverter");
+const { getDatesInRange } = require("../utils/GetDatesInRange");
 
 module.exports.fetchAllTasks = async (req, res, next) => {
   try {
@@ -57,9 +59,9 @@ module.exports.createTask = async (req, res, next) => {
       return next(
         createError(
           400,
-          `Task for the same project already exists on ${new Date(
+          `Task for the same project already exists on ${convertDate(
             task.date
-          ).toLocaleDateString("en-IN")}`
+          )})}`
         )
       );
     }
@@ -92,7 +94,7 @@ module.exports.fetchTaskByDate = async (req, res, next) => {
 
     if (!projectTaskEffortDetails) {
       return res.status(404).json({
-        message: `Project Task Efforts Not Found for ${date}
+        message: `Project Task Efforts Not Found for ${convertDate(date)}
         `,
       });
     }
@@ -103,7 +105,7 @@ module.exports.fetchTaskByDate = async (req, res, next) => {
           projectID: projectTask.projectID,
           summary: projectTask.summary,
           hoursInvested: projectTask.hoursInvested,
-          date: projectTask.date,
+          date: convertDate(projectTask.date),
         };
       }
     );
@@ -156,7 +158,7 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
           return {
             code: projectTask.projectID,
             projectName: result[0]?.name,
-            date: projectTask.date,
+            date: convertDate(projectTask.date),
             summary: projectTask.summary,
             hoursInvested: projectTask.hoursInvested,
           };
@@ -249,7 +251,7 @@ module.exports.fetchTaskByProject = async (req, res, next) => {
             projectCode: projectTask.projectID,
             summary: projectTask.summary,
             hoursInvested: projectTask.hoursInvested,
-            date: projectTask.date,
+            date: convertDate(projectTask.date),
           };
         } catch (error) {
           return projectTask;
@@ -284,7 +286,8 @@ module.exports.fetchDayWiseCount = async (req, res, next) => {
 
     let dayWiseCount = {};
     taskDetails.forEach((task) => {
-      const date = new Date(task.date).toLocaleDateString("en-IN");
+      const date = convertDate(task.date);
+
       if (dayWiseCount[date]) {
         dayWiseCount[date]++;
       } else {
@@ -319,7 +322,7 @@ module.exports.fetchDayWiseEmployeesCount = async (req, res, next) => {
 
     let dayWiseCount = {};
     taskDetails.forEach(({ date, employeeID }) => {
-      const taskDate = new Date(date).toLocaleDateString("en-IN");
+      const taskDate = convertDate(date);
 
       if (!dayWiseCount[taskDate]) dayWiseCount[taskDate] = {};
 
@@ -361,7 +364,7 @@ module.exports.fetchDayWiseProjectsCount = async (req, res, next) => {
 
     let dayWiseCount = {};
     taskDetails.forEach(({ date, projectID }) => {
-      const taskDate = new Date(date).toLocaleDateString("en-IN");
+      const taskDate = convertDate(date);
 
       if (!dayWiseCount[taskDate]) dayWiseCount[taskDate] = {};
 
@@ -404,7 +407,7 @@ module.exports.fetchDayWiseProjectsAvg = async (req, res, next) => {
     let dayWiseTotalHours = {};
 
     taskDetails.forEach(({ date, hoursInvested }) => {
-      const taskDate = new Date(date).toLocaleDateString("en-IN");
+      const taskDate = convertDate(date);
 
       if (!dayWiseTotalHours[taskDate]) {
         dayWiseTotalHours[taskDate] = { total: 0, count: 0 };
@@ -447,7 +450,7 @@ module.exports.fetchDayWiseHours = async (req, res, next) => {
 
     let dayWiseData = {};
     taskDetails.forEach((task) => {
-      const date = new Date(task.date).toLocaleDateString("en-IN");
+      const date = convertDate(task.date);
       const hours = task.hoursInvested;
 
       if (dayWiseData[date]) {
@@ -500,7 +503,7 @@ module.exports.fetchProjectWiseHours = async (req, res, next) => {
     let dayWiseData = {};
 
     taskDetails.forEach(({ projectID, hoursInvested }) => {
-      const projectName = `${projectDetailsMap.get(projectID)}`;
+      const projectName = projectDetailsMap.get(projectID);
 
       if (projectName) {
         if (dayWiseData[projectName]) {
@@ -661,11 +664,8 @@ module.exports.fetchProjectWiseContribution = async (req, res, next) => {
       const employeeIndex = employeeNames.indexOf(employeeName);
       const projectIndex = projectNames.indexOf(projectName);
 
-      const [hours, minutes] = hoursInvested.split(":").map(Number);
-      const totalMinutes = hours * 60 + minutes;
-      const decimalHours = (totalMinutes / 60).toFixed(1);
-
-      data[employeeIndex].data[projectIndex] = parseFloat(decimalHours);
+      data[employeeIndex].data[projectIndex] =
+        convertToDecimalHours(hoursInvested);
     });
 
     const categories = projectNames.map((projectName) => projectName);
@@ -734,5 +734,72 @@ module.exports.fetchUniqueProjectsCount = async (req, res, next) => {
     return res.status(200).json(uniqueProjectIDs.length);
   } catch (error) {
     return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchCurrentMonthTasks = async (req, res, next) => {
+  try {
+    const employeeID = req.params.employeeID;
+
+    const { startDate, endDate } = getStartEndDate(new Date());
+
+    const taskDetails = await TaskModel.find({
+      $and: [
+        {
+          date: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+        { employeeID: employeeID },
+      ],
+    });
+
+    if (!taskDetails) {
+      return next(createError(404, `Tasks not found`));
+    }
+
+    const datesInRange = getDatesInRange(startDate, endDate);
+
+    const taskList = [];
+
+    datesInRange?.forEach((date) => {
+      const matchingProjectTask = taskDetails.filter(
+        (task) => convertDate(date) === convertDate(task.date)
+      );
+
+      if (matchingProjectTask?.length !== 0) {
+        taskList.push(
+          ...matchingProjectTask.map((data) => ({
+            date: data.date,
+            hoursInvested: data.hoursInvested,
+          }))
+        );
+      } else {
+        taskList.push({
+          date: date,
+          hoursInvested: "00:00",
+        });
+      }
+    });
+
+    let dayWiseHours = {};
+
+    taskList.forEach(({ date, hoursInvested }) => {
+      const taskDate = convertDate(date);
+
+      if (!dayWiseHours[taskDate] && hoursInvested === "00:00") {
+        dayWiseHours[taskDate] = hoursInvested;
+      } else {
+        dayWiseHours[taskDate] = addTimes(
+          dayWiseHours[taskDate],
+          hoursInvested
+        );
+      }
+    });
+
+    return res.status(200).json(dayWiseHours);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
   }
 };

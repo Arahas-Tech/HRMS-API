@@ -16,6 +16,7 @@ const {
   fetchUniqueEmployeesCount,
   fetchUniqueProjectsCount,
   fetchDayWiseProjectsAvg,
+  fetchCurrentMonthTasks,
 } = require("../controllers/task.controller");
 const { verifyToken, verifyAdmin } = require("../utils/verifyToken");
 const tasksRouter = express.Router();
@@ -74,6 +75,11 @@ tasksRouter.get(
   "/charts/dayWiseAvg?:date",
   verifyAdmin,
   fetchDayWiseProjectsAvg
+);
+tasksRouter.get(
+  "/charts/currentMonthTasks/:employeeID",
+  verifyToken,
+  fetchCurrentMonthTasks
 );
 
 module.exports = tasksRouter;

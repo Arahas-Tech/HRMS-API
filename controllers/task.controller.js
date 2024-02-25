@@ -678,7 +678,7 @@ module.exports.fetchProjectWiseContribution = async (req, res, next) => {
       const employeeIndex = employeeNames.indexOf(employeeName);
       const projectIndex = projectNames.indexOf(projectName);
 
-      data[employeeIndex].data[projectIndex] =
+      data[employeeIndex].data[projectIndex] +=
         convertToDecimalHours(hoursInvested);
     });
 
@@ -691,6 +691,7 @@ module.exports.fetchProjectWiseContribution = async (req, res, next) => {
 
     return res.send(chartData);
   } catch (error) {
+    console.log(error);
     return next(createError(500, "Something went wrong"));
   }
 };

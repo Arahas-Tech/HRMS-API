@@ -65,6 +65,7 @@ const TaskEditSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    remarks: { type: String, required: true },
     date: {
       type: Date,
       required: true,

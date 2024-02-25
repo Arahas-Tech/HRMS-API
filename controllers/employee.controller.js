@@ -169,6 +169,19 @@ module.exports.getAllEmployees = async (_req, res, next) => {
   }
 };
 
+module.exports.fetchEmployeeCount = async (_req, res, next) => {
+  try {
+    // Fetching only active employees
+    const allEmployeeCount = await EmployeeModel.countDocuments({
+      isActive: true,
+    });
+
+    return res.status(200).json(allEmployeeCount);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
 module.exports.getAllEmployeesForManager = async (_req, res, next) => {
   try {
     const allEmployees = await EmployeeModel.find({
@@ -308,7 +321,9 @@ module.exports.getEmployeeByID = async (req, res, next) => {
           employeeName: 1,
           employeeEmail: 1,
           roleID: 1,
+          accessID: 1,
           departmentID: 1,
+          reportingManager: 1,
           employeeDesignation: 1,
           employeeWorkingState: 1,
           employeeWorkingLocation: 1,

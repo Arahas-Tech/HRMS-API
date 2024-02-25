@@ -10,6 +10,7 @@ const {
   bulkAddEmployees,
   updateTraining,
   editEmployee,
+  fetchEmployeeCount,
 } = require("../controllers/employee.controller");
 const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 const multer = require("multer");
@@ -42,5 +43,8 @@ employeesRouter.patch("/editEmployee", verifyAdmin, editEmployee);
 employeesRouter.post("/deleteEmployee/:id", verifyAdmin, deleteEmployee);
 
 employeesRouter.patch("/updateTraining/:id", verifyToken, updateTraining);
+
+// Dashboard Routes
+employeesRouter.get("/count", verifyAdmin, fetchEmployeeCount);
 
 module.exports = employeesRouter;

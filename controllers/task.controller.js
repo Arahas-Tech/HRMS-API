@@ -2,7 +2,28 @@ const EmployeeModel = require("../models/employeeModel");
 const ProjectModel = require("../models/projectModel");
 const TaskModel = require("../models/taskModel");
 const { addTimes } = require("../utils/AddTwoStringHours");
+const { modifyTaskDetails } = require("../utils/modifyProjectTask");
 const createError = require("../utils/errorHandler");
+const { convertToDecimalHours } = require("../utils/convertToDecimalHours");
+const { getStartEndDate } = require("../utils/getStartEndDate");
+const convertDate = require("../utils/DateConverter");
+const { getDatesInRange } = require("../utils/GetDatesInRange");
+
+module.exports.fetchAllTasks = async (req, res, next) => {
+  try {
+    const taskDetails = await TaskModel.find();
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return res.status(404).json("No tasks found.");
+    }
+
+    const taskDetailsModified = await modifyTaskDetails(taskDetails);
+
+    return res.status(200).json(taskDetailsModified);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
 
 module.exports.createTask = async (req, res, next) => {
   try {
@@ -38,9 +59,9 @@ module.exports.createTask = async (req, res, next) => {
       return next(
         createError(
           400,
-          `Task for the same project already exists on ${new Date(
+          `Task for the same project already exists on ${convertDate(
             task.date
-          ).toLocaleDateString("en-IN")}`
+          )})}`
         )
       );
     }
@@ -73,7 +94,7 @@ module.exports.fetchTaskByDate = async (req, res, next) => {
 
     if (!projectTaskEffortDetails) {
       return res.status(404).json({
-        message: `Project Task Efforts Not Found for ${date}
+        message: `Project Task Efforts Not Found for ${convertDate(date)}
         `,
       });
     }
@@ -84,14 +105,13 @@ module.exports.fetchTaskByDate = async (req, res, next) => {
           projectID: projectTask.projectID,
           summary: projectTask.summary,
           hoursInvested: projectTask.hoursInvested,
-          date: projectTask.date,
+          date: convertDate(projectTask.date),
         };
       }
     );
 
     return res.status(200).json(projectTaskEffortDetailsModified);
   } catch (error) {
-    console.log(error);
     return next(createError(500, "Something went wrong"));
   }
 };
@@ -138,7 +158,7 @@ module.exports.fetchTaskByDates = async (req, res, next) => {
           return {
             code: projectTask.projectID,
             projectName: result[0]?.name,
-            date: projectTask.date,
+            date: convertDate(projectTask.date),
             summary: projectTask.summary,
             hoursInvested: projectTask.hoursInvested,
           };
@@ -174,9 +194,7 @@ module.exports.fetchProjectHoursByDate = async (req, res, next) => {
     });
 
     if (!taskDetails || taskDetails.length === 0) {
-      return res.status(404).json({
-        message: `Tasks not found`,
-      });
+      return next(createError(404, "Not found."));
     }
 
     const totalHours = taskDetails.reduce(
@@ -233,7 +251,7 @@ module.exports.fetchTaskByProject = async (req, res, next) => {
             projectCode: projectTask.projectID,
             summary: projectTask.summary,
             hoursInvested: projectTask.hoursInvested,
-            date: projectTask.date,
+            date: convertDate(projectTask.date),
           };
         } catch (error) {
           return projectTask;
@@ -242,6 +260,545 @@ module.exports.fetchTaskByProject = async (req, res, next) => {
     );
 
     return res.status(200).json(taskDetailsModified);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchDayWiseCount = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    taskDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    let dayWiseCount = {};
+    taskDetails.forEach((task) => {
+      const date = convertDate(task.date);
+
+      if (dayWiseCount[date]) {
+        dayWiseCount[date]++;
+      } else {
+        dayWiseCount[date] = 1;
+      }
+    });
+
+    return res.status(200).json(dayWiseCount);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchDayWiseEmployeesCount = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    taskDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    let dayWiseCount = {};
+    taskDetails.forEach(({ date, employeeID }) => {
+      const taskDate = convertDate(date);
+
+      if (!dayWiseCount[taskDate]) dayWiseCount[taskDate] = {};
+
+      if (!dayWiseCount[taskDate][employeeID])
+        dayWiseCount[taskDate][employeeID] = 1;
+      else {
+        dayWiseCount[taskDate][employeeID]++;
+      }
+    });
+
+    Object.entries(dayWiseCount).forEach(([key, value]) => {
+      dayWiseCount[key] = Object.keys(value).length;
+    });
+
+    return res.status(200).json(dayWiseCount);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchDayWiseProjectsCount = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    taskDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    let dayWiseCount = {};
+    taskDetails.forEach(({ date, projectID }) => {
+      const taskDate = convertDate(date);
+
+      if (!dayWiseCount[taskDate]) dayWiseCount[taskDate] = {};
+
+      if (!dayWiseCount[taskDate][projectID])
+        dayWiseCount[taskDate][projectID] = 1;
+      else {
+        dayWiseCount[taskDate][projectID]++;
+      }
+    });
+
+    Object.entries(dayWiseCount).forEach(([key, value]) => {
+      dayWiseCount[key] = Object.keys(value).length;
+    });
+
+    return res.status(200).json(dayWiseCount);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchDayWiseProjectsAvg = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    taskDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    let dayWiseTotalHours = {};
+
+    taskDetails.forEach(({ date, hoursInvested }) => {
+      const taskDate = convertDate(date);
+
+      if (!dayWiseTotalHours[taskDate]) {
+        dayWiseTotalHours[taskDate] = { total: 0, count: 0 };
+      }
+
+      dayWiseTotalHours[taskDate].total += convertToDecimalHours(hoursInvested);
+      dayWiseTotalHours[taskDate].count++;
+    });
+
+    // Calculate the average hours per day
+    const dayWiseAvgHours = {};
+    Object.entries(dayWiseTotalHours).forEach(([date, { total, count }]) => {
+      dayWiseAvgHours[date] = (total / count).toFixed(1);
+    });
+
+    return res.status(200).json(dayWiseAvgHours);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchDayWiseHours = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    taskDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    let dayWiseData = {};
+    taskDetails.forEach((task) => {
+      const date = convertDate(task.date);
+      const hours = task.hoursInvested;
+
+      if (dayWiseData[date]) {
+        dayWiseData[date] = addTimes(dayWiseData[date], hours);
+      } else {
+        dayWiseData[date] = hours;
+      }
+    });
+
+    return res.status(200).json(dayWiseData);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchProjectWiseHours = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    taskDetails.sort((a, b) => a.hoursInvested.localeCompare(b.hoursInvested));
+
+    const taskProjectIDs = taskDetails.map(
+      (projectTask) => projectTask.projectID
+    );
+    const uniqueProjectIDs = Array.from(new Set(taskProjectIDs));
+
+    const projectDetailsMap = new Map();
+    const projectDetails = await ProjectModel.aggregate([
+      { $match: { code: { $in: uniqueProjectIDs } } },
+      { $project: { code: 1, projectName: "$name" } },
+    ]);
+
+    projectDetails?.forEach((project) => {
+      projectDetailsMap.set(project.code, project.projectName);
+    });
+
+    let dayWiseData = {};
+
+    taskDetails.forEach(({ projectID, hoursInvested }) => {
+      const projectName = projectDetailsMap.get(projectID);
+
+      if (projectName) {
+        if (dayWiseData[projectName]) {
+          dayWiseData[projectName] = addTimes(
+            dayWiseData[projectName],
+            hoursInvested
+          );
+        } else {
+          dayWiseData[projectName] = hoursInvested;
+        }
+      }
+    });
+
+    return res.status(200).json(dayWiseData);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchEmployeeWiseHours = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    const taskEmployeeIDs = taskDetails.map(
+      (projectTask) => projectTask.employeeID
+    );
+    const uniqueEmployeeIDs = Array.from(new Set(taskEmployeeIDs));
+
+    const employeeDetailsMap = new Map();
+    const employeeDetails = await EmployeeModel.aggregate([
+      { $match: { _id: { $in: uniqueEmployeeIDs } } },
+      {
+        $project: {
+          employeeName: { $concat: ["$employeeID", "-", "$employeeName"] },
+        },
+      },
+    ]);
+
+    employeeDetails?.forEach((employee) => {
+      employeeDetailsMap.set(employee._id.toString(), employee.employeeName);
+    });
+
+    let dayWiseData = {};
+
+    taskDetails.forEach(({ employeeID, hoursInvested }) => {
+      const employeeName = employeeDetailsMap.get(employeeID.toString());
+
+      if (employeeName) {
+        if (dayWiseData[employeeName]) {
+          dayWiseData[employeeName] = addTimes(
+            dayWiseData[employeeName],
+            hoursInvested
+          );
+        } else {
+          dayWiseData[employeeName] = hoursInvested;
+        }
+      }
+    });
+
+    return res.status(200).json(dayWiseData);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchProjectWiseContribution = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    const taskEmployeeIDs = taskDetails.map(
+      (projectTask) => projectTask.employeeID
+    );
+    const taskProjectIDs = taskDetails.map(
+      (projectTask) => projectTask.projectID
+    );
+    const uniqueEmployeeIDs = Array.from(new Set(taskEmployeeIDs));
+    const uniqueProjectIDs = Array.from(new Set(taskProjectIDs));
+
+    const employeeDetailsMap = new Map();
+    const employeeDetails = await EmployeeModel.aggregate([
+      { $match: { _id: { $in: uniqueEmployeeIDs } } },
+      {
+        $project: {
+          employeeName: { $concat: ["$employeeID", "-", "$employeeName"] },
+        },
+      },
+    ]);
+
+    employeeDetails?.forEach((employee) => {
+      employeeDetailsMap.set(employee._id.toString(), employee.employeeName);
+    });
+
+    const projectDetailsMap = new Map();
+    const projectDetails = await ProjectModel.aggregate([
+      { $match: { code: { $in: uniqueProjectIDs } } },
+      { $project: { code: 1, projectName: "$name" } },
+    ]);
+
+    projectDetails?.forEach((project) => {
+      projectDetailsMap.set(project.code, project.projectName);
+    });
+
+    let data = [];
+
+    const projectNames = [];
+    const employeeNames = [];
+
+    taskDetails.forEach(({ projectID, employeeID }) => {
+      const projectName = projectDetailsMap.get(projectID);
+      const employeeName = employeeDetailsMap.get(employeeID.toString());
+
+      if (!projectNames.includes(projectName) && projectName !== undefined) {
+        projectNames.push(projectName);
+      }
+
+      if (!employeeNames.includes(employeeName)) {
+        employeeNames.push(employeeName);
+      }
+    });
+
+    data = employeeNames.map((name) => {
+      return {
+        name: name,
+        data: Array(projectNames.length).fill(0),
+      };
+    });
+
+    taskDetails.forEach(({ projectID, employeeID, hoursInvested }) => {
+      const projectName = projectDetailsMap.get(projectID);
+      const employeeName = employeeDetailsMap.get(employeeID.toString());
+
+      const employeeIndex = employeeNames.indexOf(employeeName);
+      const projectIndex = projectNames.indexOf(projectName);
+
+      data[employeeIndex].data[projectIndex] =
+        convertToDecimalHours(hoursInvested);
+    });
+
+    const categories = projectNames.map((projectName) => projectName);
+
+    const chartData = {
+      categories: categories,
+      series: data,
+    };
+
+    return res.send(chartData);
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchUniqueEmployeesCount = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    const taskEmployeeIDs = taskDetails.map((projectTask) =>
+      projectTask.employeeID.toString()
+    );
+    const uniqueEmployeeIDs = Array.from(new Set(taskEmployeeIDs));
+
+    return res.status(200).json(uniqueEmployeeIDs.length);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchUniqueProjectsCount = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    const taskDetails = await TaskModel.find({
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    const taskProjectIDs = taskDetails.map((projectTask) =>
+      projectTask.projectID.toString()
+    );
+    const uniqueProjectIDs = Array.from(new Set(taskProjectIDs));
+
+    return res.status(200).json(uniqueProjectIDs.length);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchCurrentMonthTasks = async (req, res, next) => {
+  try {
+    const employeeID = req.params.employeeID;
+
+    const { startDate, endDate } = getStartEndDate(new Date());
+
+    const taskDetails = await TaskModel.find({
+      $and: [
+        {
+          date: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+        { employeeID: employeeID },
+      ],
+    });
+
+    if (!taskDetails) {
+      return next(createError(404, `Tasks not found`));
+    }
+
+    const datesInRange = getDatesInRange(startDate, endDate);
+
+    const taskList = [];
+
+    datesInRange?.forEach((date) => {
+      const matchingProjectTask = taskDetails.filter(
+        (task) => convertDate(date) === convertDate(task.date)
+      );
+
+      if (matchingProjectTask?.length !== 0) {
+        taskList.push(
+          ...matchingProjectTask.map((data) => ({
+            date: data.date,
+            hoursInvested: data.hoursInvested,
+          }))
+        );
+      } else {
+        taskList.push({
+          date: date,
+          hoursInvested: "00:00",
+        });
+      }
+    });
+
+    let dayWiseHours = {};
+
+    taskList.forEach(({ date, hoursInvested }) => {
+      const taskDate = convertDate(date);
+
+      if (!dayWiseHours[taskDate] && hoursInvested === "00:00") {
+        dayWiseHours[taskDate] = hoursInvested;
+      } else {
+        dayWiseHours[taskDate] = addTimes(
+          dayWiseHours[taskDate],
+          hoursInvested
+        );
+      }
+    });
+
+    return res.status(200).json(dayWiseHours);
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }

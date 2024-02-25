@@ -1,5 +1,6 @@
 const EmployeeModel = require("../models/employeeModel");
 const ProjectModel = require("../models/projectModel");
+const convertDate = require("../utils/DateConverter");
 const createError = require("../utils/errorHandler");
 
 module.exports.addProject = async (req, res, next) => {
@@ -122,8 +123,8 @@ module.exports.getAllProjects = async (_req, res, next) => {
         name: data.name,
         description: data.description,
         projectManager: data.projectManager,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: convertDate(data.startDate),
+        endDate: convertDate(data.endDate),
         assignedDetails: data.assignedDetails,
         isCompleted: data.isCompleted,
       };
@@ -131,7 +132,17 @@ module.exports.getAllProjects = async (_req, res, next) => {
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchProjectsCount = async (_req, res, next) => {
+  try {
+    const projectsCount = await ProjectModel.countDocuments();
+
+    return res.status(200).json(projectsCount);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -152,13 +163,13 @@ module.exports.getAllProjectsByEmployee = async (req, res, next) => {
         code: data.code,
         name: data.name,
         isCompleted: data.isCompleted,
-        endDate: data.endDate,
+        endDate: convertDate(data.endDate),
       };
     });
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -178,15 +189,15 @@ module.exports.fetchRMProjects = async (req, res, next) => {
       return {
         code: data.code,
         name: data.name,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: convertDate(data.startDate),
+        endDate: convertDate(data.endDate),
         assignedDetails: data.assignedDetails,
       };
     });
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -208,12 +219,12 @@ module.exports.getProjectDetailByProjectCode = async (req, res, next) => {
 
     return res.status(200).json({
       name: projectDetails.name,
-      endDate: projectDetails.endDate,
+      endDate: convertDate(projectDetails.endDate),
       projectAllotedDuration: projectDetails.projectAllotedDuration,
       projectManager: projectManager.employeeName,
     });
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -238,7 +249,7 @@ module.exports.getProjectDetailsByManager = async (req, res, next) => {
 
     return res.status(200).json(projectModifiedDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -250,7 +261,7 @@ module.exports.getAllProjectsDetailsByManager = async (req, res, next) => {
     });
     return res.status(200).json(getAllProjects);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -309,7 +320,7 @@ module.exports.getProjectDetailByProjectCodeAndManager = async (
       assignedDetails: assignedDetailsWithNames,
     });
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 
@@ -323,8 +334,6 @@ module.exports.editProject = async (req, res, next) => {
       name: updatedProjectName.trim(),
       code: { $ne: code }, // Exclude the current record being edited
     });
-
-    console.log(existingProject);
 
     // ? Check if existingProject array has any elements
     if (existingProject && existingProject.length > 0) {
@@ -347,7 +356,7 @@ module.exports.editProject = async (req, res, next) => {
 
     return res.status(200).json(editedProjectDetails);
   } catch (error) {
-    return next(createError(500, `Something went wrong! ${error}`));
+    return next(createError(500, `Something went wrong!`));
   }
 };
 

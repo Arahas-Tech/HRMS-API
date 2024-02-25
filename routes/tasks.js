@@ -2,8 +2,8 @@ const express = require("express");
 const {
   fetchAllTasks,
   createTask,
-  fetchTaskByDate,
-  fetchTaskByDates,
+  fetchTasksByDate,
+  fetchTasksByDates,
   fetchTaskByProject,
   fetchProjectHoursByDate,
   fetchDayWiseCount,
@@ -23,8 +23,8 @@ const tasksRouter = express.Router();
 
 tasksRouter.get("/", verifyAdmin, fetchAllTasks);
 tasksRouter.post("/createTask", verifyToken, createTask);
-tasksRouter.post("/fetchTaskByDate", verifyToken, fetchTaskByDate);
-tasksRouter.post("/fetchTaskByDates", verifyToken, fetchTaskByDates);
+tasksRouter.post("/fetchTasksByDate", verifyToken, fetchTasksByDate);
+tasksRouter.post("/fetchTasksByDates", verifyToken, fetchTasksByDates);
 tasksRouter.post("/fetchTaskByProject", verifyToken, fetchTaskByProject);
 tasksRouter.post(
   "/fetchProjectHoursByDate",

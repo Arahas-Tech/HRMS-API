@@ -1,7 +1,7 @@
 const express = require("express");
 const taskEditRouter = express.Router();
 
-const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
+const { verifyToken } = require("../utils/verifyToken");
 const {
   fetchManagerPendingApprovals,
   sendEditApproval,
@@ -11,7 +11,7 @@ const {
 
 taskEditRouter.route("/").post(verifyToken, sendEditApproval);
 taskEditRouter.route("/:id").get(verifyToken, fetchManagerPendingApprovals);
-taskEditRouter.route("/approveEditTask").post(verifyToken, approveEditTask);
-taskEditRouter.route("/rejectEditTask").post(verifyToken, rejectEditTask);
+taskEditRouter.route("/approveEdit").post(verifyToken, approveEditTask);
+taskEditRouter.route("/rejectEdit").post(verifyToken, rejectEditTask);
 
 module.exports = taskEditRouter;

@@ -173,7 +173,7 @@ module.exports.fetchEmployeeCount = async (_req, res, next) => {
   try {
     // Fetching only active employees
     const allEmployeeCount = await EmployeeModel.countDocuments({
-      isActive: true,
+      $and: [{ isActive: true }, { roleID: { $ne: "ATPL-ADMIN" } }],
     });
 
     return res.status(200).json(allEmployeeCount);

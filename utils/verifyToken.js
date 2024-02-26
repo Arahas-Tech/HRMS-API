@@ -11,7 +11,8 @@ const verifyToken = (req, _res, next) => {
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, employee) => {
-    if (err) return next(createError(403, "Not Valid Token!"));
+    if (err)
+      return next(createError(403, "Session expired, please login again!"));
     req.RoleID = employee.roleID;
     next();
   });

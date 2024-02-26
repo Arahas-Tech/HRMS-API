@@ -90,9 +90,23 @@ const sendNotification = async (req, res) => {
   return res.status(200).send("Notification sent to employee!");
 };
 
+const sendRejectedNotification = async (req, res) => {
+  const { userID, title, text } = req.body;
+
+  await AdminNotificationModel.create({
+    user: userID,
+    title: title,
+    text: text,
+    read: false,
+  });
+
+  return res.status(200).send("Notification sent to employee!");
+};
+
 module.exports = {
   getAllNotifications,
   markOneNotificationAsRead,
   markAllNotificationsAsRead,
   sendNotification,
+  sendRejectedNotification,
 };

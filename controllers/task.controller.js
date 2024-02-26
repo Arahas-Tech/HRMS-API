@@ -182,11 +182,7 @@ module.exports.fetchTasksByDates = async (req, res, next) => {
       })
     );
 
-    const sortedTaskData = taskDetailsModified?.sort(function (a, b) {
-      return Date.parse(a.date) - Date.parse(b.date);
-    });
-
-    return res.status(200).json(sortedTaskData);
+    return res.status(200).json(taskDetailsModified);
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }

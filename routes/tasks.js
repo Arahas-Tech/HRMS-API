@@ -35,46 +35,54 @@ tasksRouter.post(
 );
 
 // Charts
-tasksRouter.get("/charts/dayWiseCount?:date", verifyAdmin, fetchDayWiseCount);
 tasksRouter.get(
-  "/charts/dayWiseEmployeesCount?:date",
+  "/charts/dayWiseCount?:date?:employee?",
+  verifyAdmin,
+  fetchDayWiseCount
+);
+tasksRouter.get(
+  "/charts/dayWiseEmployeesCount?:date:employee?",
   verifyAdmin,
   fetchDayWiseEmployeesCount
 );
 tasksRouter.get(
-  "/charts/dayWiseProjectsCount?:date",
+  "/charts/dayWiseProjectsCount?:date:employee?",
   verifyAdmin,
   fetchDayWiseProjectsCount
 );
-tasksRouter.get("/charts/dayWiseHours?:date", verifyAdmin, fetchDayWiseHours);
 tasksRouter.get(
-  "/charts/projectWiseHours?:date",
+  "/charts/dayWiseHours?:date:employee?",
+  verifyAdmin,
+  fetchDayWiseHours
+);
+tasksRouter.get(
+  "/charts/projectWiseHours?:date:employee?",
   verifyAdmin,
   fetchProjectWiseHours
 );
 tasksRouter.get(
-  "/charts/employeeWiseHours?:date",
+  "/charts/employeeWiseHours?:date?:employee?",
   verifyAdmin,
   fetchEmployeeWiseHours
 );
 tasksRouter.get(
-  "/charts/projectWiseContribution?:date",
+  "/charts/projectWiseContribution?:date?:employee?",
   verifyAdmin,
   fetchProjectWiseContribution
 );
 tasksRouter.get(
-  "/charts/employeesCount?:date",
+  "/charts/employeesCount?:date?:employee?",
   verifyAdmin,
   fetchUniqueEmployeesCount
 );
 
 tasksRouter.get(
-  "/charts/projectsCount?:date",
+  "/charts/projectsCount?:date?:employee?",
   verifyAdmin,
   fetchUniqueProjectsCount
 );
 tasksRouter.get(
-  "/charts/dayWiseAvg?:date",
+  "/charts/dayWiseAvg?:date?:employee?",
   verifyAdmin,
   fetchDayWiseProjectsAvg
 );

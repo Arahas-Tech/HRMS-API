@@ -137,6 +137,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
 
         return employee.roleID !== "ATPL-ADMIN"
           ? {
+              employeeObjectID: employee._id,
               employeeID: employee.employeeID,
               employeeName: employee.employeeName,
               employeeEmail: employee.employeeEmail,
@@ -169,12 +170,21 @@ module.exports.getAllEmployees = async (_req, res, next) => {
   }
 };
 
-module.exports.fetchEmployeeCount = async (_req, res, next) => {
+module.exports.fetchEmployeeCount = async (req, res, next) => {
   try {
-    // Fetching only active employees
-    const allEmployeeCount = await EmployeeModel.countDocuments({
-      $and: [{ isActive: true }, { roleID: { $ne: "ATPL-ADMIN" } }],
-    });
+    const { employee } = req.query;
+
+    let allEmployeeCount;
+
+    if (employee) {
+      allEmployeeCount = await EmployeeModel.countDocuments({
+        $and: [{ isActive: true }, { _id: employee }],
+      });
+    } else {
+      allEmployeeCount = await EmployeeModel.countDocuments({
+        $and: [{ isActive: true }, { roleID: { $ne: "ATPL-ADMIN" } }],
+      });
+    }
 
     return res.status(200).json(allEmployeeCount);
   } catch (error) {

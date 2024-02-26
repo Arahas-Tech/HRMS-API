@@ -351,7 +351,7 @@ module.exports.editProject = async (req, res, next) => {
       return next(createError(500, "Project already exists"));
     }
 
-    const editedProjectDetails = await ProjectModel.findOneAndUpdate(
+    await ProjectModel.findOneAndUpdate(
       { code: code },
       {
         $set: {

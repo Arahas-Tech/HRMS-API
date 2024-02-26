@@ -5,8 +5,9 @@ const {
   markOneNotificationAsRead,
   markAllNotificationsAsRead,
   sendNotification,
+  sendRejectedNotification,
 } = require("../controllers/notifications.controller");
-const { verifyAdmin } = require("../utils/verifyToken");
+const { verifyAdmin, verifyToken } = require("../utils/verifyToken");
 
 notificationRouter
   .route("/")
@@ -16,5 +17,10 @@ notificationRouter
 notificationRouter.route("/all").patch(markAllNotificationsAsRead);
 
 notificationRouter.post("/sendNotification", verifyAdmin, sendNotification);
+notificationRouter.post(
+  "/sendRejectedNotification",
+  verifyToken,
+  sendRejectedNotification
+);
 
 module.exports = notificationRouter;

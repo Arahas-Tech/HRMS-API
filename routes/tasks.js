@@ -17,12 +17,14 @@ const {
   fetchUniqueProjectsCount,
   fetchDayWiseProjectsAvg,
   fetchCurrentMonthTasks,
+  editTask,
 } = require("../controllers/task.controller");
 const { verifyToken, verifyAdmin } = require("../utils/verifyToken");
 const tasksRouter = express.Router();
 
 tasksRouter.get("/", verifyAdmin, fetchAllTasks);
 tasksRouter.post("/createTask", verifyToken, createTask);
+tasksRouter.post("/editTask", verifyToken, editTask);
 tasksRouter.post("/fetchTasksByDate", verifyToken, fetchTasksByDate);
 tasksRouter.post("/fetchTasksByDates", verifyToken, fetchTasksByDates);
 tasksRouter.post("/fetchTaskByProject", verifyToken, fetchTaskByProject);

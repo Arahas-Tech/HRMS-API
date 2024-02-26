@@ -61,14 +61,62 @@ module.exports.createTask = async (req, res, next) => {
           400,
           `Task for the same project already exists on ${convertDate(
             task.date
-          )})}`
+          )})`
         )
       );
     }
 
     await TaskModel.create(task);
 
-    return res.status(200).json("Project Task Added Successfully!");
+    return res.status(200).json("Task added successfully!");
+  } catch (error) {
+    return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.editTask = async (req, res, next) => {
+  try {
+    const task = req.body;
+
+    if (!task.date || !task.projectID || !task.employeeID || !task.summary) {
+      return next(createError(400, "Missing required fields."));
+    }
+
+    // ! Check if projectID and employeeID exist
+    const existingProject = await ProjectModel.findOne({
+      code: task.projectID,
+    });
+    if (!existingProject) {
+      return next(createError(404, "Project not found."));
+    }
+
+    const existingEmployee = await EmployeeModel.findById(task.employeeID);
+    if (!existingEmployee) {
+      return next(createError(404, "Employee not found."));
+    }
+
+    // Check if task already exists for the same date, project, and employee
+    const response = await TaskModel.findOneAndUpdate(
+      {
+        $and: [
+          { date: task.date },
+          { projectID: task.projectID },
+          { employeeID: task.employeeID },
+        ],
+      },
+      {
+        $set: {
+          summary: task.summary,
+          hoursInvested: task.hoursInvested,
+        },
+      }
+    );
+
+    if (!response) {
+      return next(createError(400, "Something went wrong"));
+    }
+
+    return res.status(200).json("Task edited successfully!");
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }
@@ -125,7 +173,6 @@ module.exports.fetchTasksByDate = async (req, res, next) => {
 
     return res.status(200).json(sortedTaskData);
   } catch (error) {
-    console.log(error);
     return next(createError(500, "Something went wrong"));
   }
 };

@@ -108,9 +108,10 @@ module.exports.approveEditTask = async (req, res, next) => {
 
     await requestedEdit[0].save();
 
-    return res.status(200).json("Approved");
+    return res
+      .status(200)
+      .json({ isApproved: true, message: "Approved edit request" });
   } catch (error) {
-    console.log(error);
     return next(createError(500, "Something went wrong"));
   }
 };
@@ -145,7 +146,9 @@ module.exports.rejectEditTask = async (req, res, next) => {
 
     await requestedEdit[0].save();
 
-    return res.status(200).json("Rejected");
+    return res
+      .status(200)
+      .json({ isRejected: true, message: "Rejected edit request" });
   } catch (error) {
     return next(createError(500, "Something went wrong"));
   }

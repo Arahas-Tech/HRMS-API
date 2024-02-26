@@ -1,5 +1,6 @@
 const EmployeeModel = require("../models/employeeModel");
 const ProjectModel = require("../models/projectModel");
+const convertDate = require("./DateConverter");
 
 module.exports.modifyTaskDetails = async (taskDetails) => {
   const taskEmployeeIDs = taskDetails.map(
@@ -50,9 +51,8 @@ module.exports.modifyTaskDetails = async (taskDetails) => {
     return {
       employeeName: employeeName,
       projectName: projectName,
-      summary: projectTask.summary,
       hoursInvested: projectTask.hoursInvested,
-      date: new Date(projectTask.date).toLocaleDateString("en-IN"),
+      date: convertDate(projectTask.date),
     };
   });
 

@@ -11,7 +11,7 @@ const {
 } = require("../controllers/cities.controller");
 
 citiesRouter
-  .route("/:id")
+  .route("/:id?")
   .get(verifyAdmin, fetchCities)
   .post(verifyAdmin, createCity)
   .patch(verifyAdmin, editCity)

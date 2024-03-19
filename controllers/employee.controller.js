@@ -5,6 +5,7 @@ const createError = require("../utils/errorHandler");
 
 const xlsx = require("xlsx");
 const bcrypt = require("bcryptjs");
+const ProjectModel = require("../models/projectModel");
 
 module.exports.getAllEmployees = async (_req, res, next) => {
   try {
@@ -172,7 +173,7 @@ module.exports.getAllEmployees = async (_req, res, next) => {
 
 module.exports.fetchEmployeeCount = async (req, res, next) => {
   try {
-    const { employee } = req.query;
+    const { employee, project } = req.query;
 
     let allEmployeeCount;
 
@@ -180,6 +181,12 @@ module.exports.fetchEmployeeCount = async (req, res, next) => {
       allEmployeeCount = await EmployeeModel.countDocuments({
         $and: [{ isActive: true }, { _id: employee }],
       });
+    } else if (project) {
+      const projects = await ProjectModel.find({
+        code: project,
+      });
+
+      allEmployeeCount = projects[0].assignedDetails.length;
     } else {
       allEmployeeCount = await EmployeeModel.countDocuments({
         $and: [{ isActive: true }, { roleID: { $ne: "ATPL-ADMIN" } }],

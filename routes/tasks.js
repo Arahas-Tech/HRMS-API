@@ -87,7 +87,7 @@ tasksRouter.get(
   fetchDayWiseProjectsAvg
 );
 tasksRouter.get(
-  "/charts/currentMonthTasks/:employeeID:project?",
+  "/charts/currentMonthTasks/:employeeID",
   verifyToken,
   fetchCurrentMonthTasks
 );

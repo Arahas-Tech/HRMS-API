@@ -53,6 +53,7 @@ module.exports.modifyTaskDetails = async (taskDetails) => {
       projectName: projectName,
       hoursInvested: projectTask.hoursInvested,
       date: convertDate(projectTask.date),
+      summary: projectTask.summary,
     };
   });
 

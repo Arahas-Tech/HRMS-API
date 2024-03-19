@@ -138,13 +138,18 @@ module.exports.getAllProjects = async (_req, res, next) => {
 
 module.exports.fetchProjectsCount = async (req, res, next) => {
   try {
-    const { employee } = req.query;
+    const { employee, project } = req.query;
 
     let projectsCount;
 
-    if (employee) {
+    if (employee || project) {
       projectsCount = await ProjectModel.countDocuments({
-        "assignedDetails.employeeObjectID": employee,
+        $or: [
+          { "assignedDetails.employeeObjectID": employee },
+          {
+            code: project,
+          },
+        ],
       });
     } else {
       projectsCount = await ProjectModel.countDocuments();

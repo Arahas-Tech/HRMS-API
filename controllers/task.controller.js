@@ -11,19 +11,24 @@ const { getDatesInRange } = require("../utils/GetDatesInRange");
 
 module.exports.fetchAllTasks = async (req, res, next) => {
   try {
-    const { date, employee: employeeID } = req.query;
+    const { date, employee: employeeID, project: projectCode } = req.query;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -347,18 +352,24 @@ module.exports.fetchDayWiseCount = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -424,18 +435,24 @@ module.exports.fetchDayWiseEmployeesCount = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -479,18 +496,24 @@ module.exports.fetchDayWiseProjectsCount = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -534,18 +557,24 @@ module.exports.fetchDayWiseProjectsAvg = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -602,18 +631,24 @@ module.exports.fetchDayWiseHours = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -652,18 +687,24 @@ module.exports.fetchProjectWiseHours = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -722,18 +763,24 @@ module.exports.fetchEmployeeWiseHours = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -794,18 +841,24 @@ module.exports.fetchProjectWiseContribution = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -907,18 +960,24 @@ module.exports.fetchUniqueEmployeesCount = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({
@@ -948,18 +1007,24 @@ module.exports.fetchUniqueProjectsCount = async (req, res, next) => {
   try {
     const date = req.query.date;
     const employeeID = req.query.employee;
+    const projectCode = req.query.project;
 
     const { startDate, endDate } = getStartEndDate(date);
 
     let taskDetails;
 
-    if (employeeID) {
+    if (employeeID || projectCode) {
       taskDetails = await TaskModel.find({
         date: {
           $gte: startDate,
           $lte: endDate,
         },
-        employeeID,
+        $or: [
+          {
+            employeeID: employeeID,
+          },
+          { projectID: projectCode },
+        ],
       });
     } else {
       taskDetails = await TaskModel.find({

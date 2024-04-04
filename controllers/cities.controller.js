@@ -99,8 +99,6 @@ module.exports.fetchCitiesForState = async (req, res, next) => {
   try {
     const stateID = req.params.id;
 
-    console.log(stateID);
-
     const filteredCities = await CityModel.find({
       stateID: stateID,
     });

@@ -363,7 +363,7 @@ module.exports.addEmployee = async (req, res, next) => {
     const existingEmployee = await EmployeeModel.findOne({
       $or: [
         { employeeEmail: data.employeeEmail?.toLowerCase() },
-        { employeeID: data.employeeID?.toLowerCase() },
+        { employeeID: data.employeeID },
       ],
     });
 

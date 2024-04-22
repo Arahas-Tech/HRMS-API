@@ -17,6 +17,8 @@ const {
   fetchUniqueProjectsCount,
   fetchDayWiseProjectsAvg,
   fetchCurrentMonthTasks,
+  fetchInactiveEmployees,
+  fetchEmployeesTasksStats,
   editTask,
 } = require("../controllers/task.controller");
 const { verifyToken, verifyAdmin } = require("../utils/verifyToken");
@@ -32,6 +34,18 @@ tasksRouter.post(
   "/fetchProjectHoursByDate",
   verifyToken,
   fetchProjectHoursByDate
+);
+
+tasksRouter.get(
+  "/fetchInactiveEmployees?:date?:employee?:project?",
+  verifyToken,
+  fetchInactiveEmployees
+);
+
+tasksRouter.get(
+  "/fetchEmployeesTasksStats?:date?:employee?:project?",
+  verifyToken,
+  fetchEmployeesTasksStats
 );
 
 // Charts

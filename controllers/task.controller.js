@@ -15,29 +15,18 @@ module.exports.fetchAllTasks = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return res.status(404).json("No tasks found.");
@@ -356,29 +345,18 @@ module.exports.fetchDayWiseCount = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -439,29 +417,18 @@ module.exports.fetchDayWiseEmployeesCount = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -500,29 +467,18 @@ module.exports.fetchDayWiseProjectsCount = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -561,29 +517,18 @@ module.exports.fetchDayWiseProjectsAvg = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -635,29 +580,18 @@ module.exports.fetchDayWiseHours = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -691,29 +625,18 @@ module.exports.fetchProjectWiseHours = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -767,29 +690,18 @@ module.exports.fetchEmployeeWiseHours = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -845,29 +757,18 @@ module.exports.fetchProjectWiseContribution = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -964,29 +865,18 @@ module.exports.fetchUniqueEmployeesCount = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -1011,29 +901,18 @@ module.exports.fetchUniqueProjectsCount = async (req, res, next) => {
 
     const { startDate, endDate } = getStartEndDate(date);
 
-    let taskDetails;
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
 
     if (employeeID || projectCode) {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-        $or: [
-          {
-            employeeID: employeeID,
-          },
-          { projectID: projectCode },
-        ],
-      });
-    } else {
-      taskDetails = await TaskModel.find({
-        date: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      });
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
     }
+
+    const taskDetails = await TaskModel.find(filter);
 
     if (!taskDetails || taskDetails.length === 0) {
       return next(createError(404, "Not found."));
@@ -1114,5 +993,107 @@ module.exports.fetchCurrentMonthTasks = async (req, res, next) => {
     return res.status(200).json(dayWiseHours);
   } catch (error) {
     return next(createError(500, "Something went wrong"));
+  }
+};
+
+module.exports.fetchInactiveEmployees = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+    const employeeID = req.query.employee;
+    const projectCode = req.query.project;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+
+    if (employeeID || projectCode) {
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
+    }
+
+    const taskDetails = await TaskModel.find(filter);
+
+    if (!taskDetails || taskDetails.length === 0) {
+      return next(createError(404, "Not found."));
+    }
+
+    const taskEmployeeIDs = taskDetails.map((projectTask) =>
+      projectTask.employeeID.toString()
+    );
+    const uniqueEmployeeIDs = Array.from(new Set(taskEmployeeIDs));
+
+    const apiFields = ["employeeID", "employeeName", "employeeEmail"];
+
+    const allEmployees = await EmployeeModel.find({
+      _id: { $nin: uniqueEmployeeIDs },
+      isActive: true,
+      roleID: { $nin: ["ATPL-ADMIN", "ATPL-PM"] },
+      employeeID: { $ne: "Test001" },
+    }).select(apiFields.join(" "));
+
+    return res.status(200).json(allEmployees);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
+  }
+};
+
+module.exports.fetchEmployeesTasksStats = async (req, res, next) => {
+  try {
+    const date = req.query.date;
+    const employeeID = req.query.employee;
+    const projectCode = req.query.project;
+
+    const { startDate, endDate } = getStartEndDate(date);
+
+    let filter = {
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+
+    if (employeeID || projectCode) {
+      filter.$or = [{ employeeID: employeeID }, { projectID: projectCode }];
+    }
+
+    const filledDaysByEmployee = await TaskModel.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: "$employeeID",
+          filledDays: {
+            $addToSet: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "_id",
+          foreignField: "_id",
+          as: "employeeInfo",
+        },
+      },
+      {
+        $unwind: "$employeeInfo",
+      },
+      {
+        $project: {
+          _id: 0,
+          employeeID: "$employeeInfo.employeeID",
+          employeeName: "$employeeInfo.employeeName",
+          employeeEmail: "$employeeInfo.employeeEmail",
+          daysCount: { $size: "$filledDays" },
+        },
+      },
+    ]).sort({ daysCount: 1 });
+
+    return res.status(200).json(filledDaysByEmployee);
+  } catch (error) {
+    return next(createError(500, `Something went wrong!`));
   }
 };

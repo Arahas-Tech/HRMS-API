@@ -179,7 +179,12 @@ module.exports.fetchEmployeeCount = async (req, res, next) => {
 
     if (employee) {
       allEmployeeCount = await EmployeeModel.countDocuments({
-        $and: [{ isActive: true }, { _id: employee }],
+        $and: [
+          { isActive: true },
+          { roleID: { $nin: ["ATPL-ADMIN", "ATPL-PM"] } },
+          { employeeID: { $ne: "Test001" } },
+          { _id: employee },
+        ],
       });
     } else if (project) {
       const projects = await ProjectModel.find({
@@ -189,7 +194,11 @@ module.exports.fetchEmployeeCount = async (req, res, next) => {
       allEmployeeCount = projects[0].assignedDetails.length;
     } else {
       allEmployeeCount = await EmployeeModel.countDocuments({
-        $and: [{ isActive: true }, { roleID: { $ne: "ATPL-ADMIN" } }],
+        $and: [
+          { isActive: true },
+          { roleID: { $nin: ["ATPL-ADMIN", "ATPL-PM"] } },
+          { employeeID: { $ne: "Test001" } },
+        ],
       });
     }
 
